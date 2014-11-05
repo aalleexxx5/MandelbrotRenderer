@@ -450,4 +450,6 @@ remove colors
 Animations? like a spinner thing while UI is loading
 Creating a huge image from a zoomed in part, --specify the dimension in the UI >filename in UI
 Metadata for the images?
+make tray  flash when rendering is complete include a sound notification
+add orange turquoise violet
 */
