@@ -75,7 +75,7 @@ import javax.swing.*;
             clrnum.addItem(1);
             clrnum.setBounds(200, 50, 100, 20);
 
-            String[] colors = {"Red", "Green", "Blue", "Cyan", "Magenta", "Yellow", "White", "Black"};
+            String[] colors = {"Red", "Green", "Blue", "Cyan", "Magenta", "Yellow", "Orange", "Forest", "Turquoise", "Sea", "Violet", "Lavender", "White", "Black"};
             clr = new JComboBox(colors);
             clr.setBounds(330, 50, 100, 20);
 
@@ -278,6 +278,26 @@ import javax.swing.*;
                     r = c1;
                     g = c1/2;
                     break;
+                case "Forest":
+                    r = c1/c2;
+                    g = c1;
+                    break;
+                case "Turquoise":
+                    g = c1;
+                    b = c1/2;
+                    break;
+                case "Sea":
+                    g = c1/2;
+                    b = c1;
+                    break;
+                case "Violet":
+                    b = c1;
+                    r = c1/2;
+                    break;
+                case "Lavender":
+                    b = c1/2;
+                    r = c1;
+                    break;
                 case "White":
                     r = g = b = c1;
                     break;
@@ -322,9 +342,39 @@ import javax.swing.*;
                         break;
                     case "Orange":
                         if (r != 255) r = c2;
-                        if (g != 255) g = c2/2;
+                        if (g < 255) g = c2/2;
                         if (g > 128) g=c1-c2/2;
                         if (b != 0) b = c1 - c2;
+                        break;
+                    case "Sea":
+                        if (r != 0) r = c1 - c2;
+                        if (g < 255) g = c2/2;
+                        if (g > 128) g=c1-c2/2;
+                        if (b != 255) b = c2;
+                        break;
+                    case "Violet":
+                        if (r < 255) r = c2/2;
+                        if (r > 128) r=c1-c2/2;
+                        if (g != 0) g = c1 - c2;
+                        if (b != 255) b = c2;
+                        break;
+                    case "Lavender":
+                        if (r != 255) r = c2;
+                        if (g != 0) g = c1-c2;
+                        if (b < 255) b = c2/2;
+                        if (b > 128) b=c1-c2/2;
+                        break;
+                    case "Forest":
+                        if (r < 255) r = c2/2;
+                        if (r > 128) r=c1-c2/2;
+                        if (g != 255) g = c2;
+                        if (b != 0) b = c1-c2;
+                        break;
+                    case "Turquoise":
+                        if (r != 0) r = c1 - c2;
+                        if (g != 255) g = c2;
+                        if (b < 255) b = c2/2;
+                        if (b > 128) b=c1/2;
                         break;
                     case "White":
                         if (r != 255) r = c2;
