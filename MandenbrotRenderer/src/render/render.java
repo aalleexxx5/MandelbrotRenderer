@@ -274,6 +274,10 @@ import javax.swing.*;
                 case "Yellow":
                     r = g = c1;
                     break;
+                case "Orange":
+                    r = c1;
+                    g = c1/2;
+                    break;
                 case "White":
                     r = g = b = c1;
                     break;
@@ -314,6 +318,12 @@ import javax.swing.*;
                     case "Yellow":
                         if (r != 255) r = c2;
                         if (g != 255) g = c2;
+                        if (b != 0) b = c1 - c2;
+                        break;
+                    case "Orange":
+                        if (r != 255) r = c2;
+                        if (g != 255) g = c2/2;
+                        if (g > 128) g=c1-c2/2;
                         if (b != 0) b = c1 - c2;
                         break;
                     case "White":
