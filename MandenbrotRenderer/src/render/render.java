@@ -279,7 +279,7 @@ import javax.swing.*;
                     g = c1/2;
                     break;
                 case "Forest":
-                    r = c1/c2;
+                    r = c1/2;
                     g = c1;
                     break;
                 case "Turquoise":
@@ -342,39 +342,45 @@ import javax.swing.*;
                         break;
                     case "Orange":
                         if (r != 255) r = c2;
-                        if (g < 255) g = c2/2;
-                        if (g > 128) g=c1-c2/2;
+                        if (g != 127){
+                            if (g < 255) g = c2/2;
+                            if (g > 128) g=c1-c2/2;}
                         if (b != 0) b = c1 - c2;
                         break;
                     case "Sea":
                         if (r != 0) r = c1 - c2;
+                        if (g != 127){
                         if (g < 255) g = c2/2;
-                        if (g > 128) g=c1-c2/2;
+                        if (g > 128) g=c1-c2/2;}
                         if (b != 255) b = c2;
                         break;
                     case "Violet":
+                        if (r!= 127){
                         if (r < 255) r = c2/2;
-                        if (r > 128) r=c1-c2/2;
+                        if (r > 128) r=c1-c2/2;}
                         if (g != 0) g = c1 - c2;
                         if (b != 255) b = c2;
                         break;
                     case "Lavender":
                         if (r != 255) r = c2;
                         if (g != 0) g = c1-c2;
+                        if (b!=127){
                         if (b < 255) b = c2/2;
-                        if (b > 128) b=c1-c2/2;
+                        if (b > 128) b=c1-c2/2;}
                         break;
                     case "Forest":
+                        if (r != 127){
                         if (r < 255) r = c2/2;
-                        if (r > 128) r=c1-c2/2;
+                        if (r > 128) r=c1-c2/2;}
                         if (g != 255) g = c2;
                         if (b != 0) b = c1-c2;
                         break;
                     case "Turquoise":
                         if (r != 0) r = c1 - c2;
                         if (g != 255) g = c2;
+                        if (b!=127){
                         if (b < 255) b = c2/2;
-                        if (b > 128) b=c1/2;
+                        if (b > 128) b=c1/2;}
                         break;
                     case "White":
                         if (r != 255) r = c2;
