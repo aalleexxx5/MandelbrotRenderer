@@ -501,7 +501,6 @@ import javax.swing.*;
 
     @Override
     public void mouseExited(MouseEvent me) {
-
     }
 
 }
@@ -511,11 +510,12 @@ UI:
 add a setting to a save/reset from the UI<
 Optimise UI<
 Improove UI load time
-remove colors
+remove colors from the UI
 
 Animations? like a spinner thing while UI is loading
 Creating a huge image from a zoomed in part, --specify the dimension in the UI >filename in UI
 Metadata for the images?
-make tray  flash when rendering is complete include a sound notification
+make tray  flash when rendering is complete, include a sound notification
 add orange turquoise violet
+revise colour engine
 */
