@@ -48,6 +48,7 @@ import javax.swing.*;
 
         JTextField MaxColors;
         JTextField Zoom;
+        JTextField FileName;
         JComboBox clrnum;
         JComboBox clr;
         JButton sav;
@@ -73,7 +74,7 @@ import javax.swing.*;
 
             clrnum = new JComboBox();
             clrnum.addItem(1);
-            clrnum.setBounds(200, 50, 100, 20);
+            clrnum.setBounds(210, 50, 100, 20);
 
             String[] colors = {"Red", "Green", "Blue", "Cyan", "Magenta", "Yellow", "Orange", "Forest", "Turquoise", "Sea", "Violet", "Lavender", "White", "Black"};
             clr = new JComboBox(colors);
@@ -84,6 +85,9 @@ import javax.swing.*;
 
             restart = new JButton("←");
             restart.setBounds(110, 80, 60, 20);
+
+            FileName = new JTextField("Filename");
+            FileName.setBounds(210, 80, 100, 20);
 
             Zoom.setText(String.valueOf(zoomLvl));
             MaxColors.setText(String.valueOf(Coloring.size()));
@@ -108,6 +112,7 @@ import javax.swing.*;
                     remove(Zoom);
                     remove(restart);
                     remove(retain);
+                    remove(FileName);
                     System.out.println("Closing Ui");
                     repaint();
                 }
@@ -226,6 +231,7 @@ import javax.swing.*;
                 Zoom.grabFocus();
                 restart.grabFocus();
                 retain.grabFocus();
+                FileName.grabFocus();
             }
             if (printImage) print(image);
         }
@@ -438,6 +444,7 @@ import javax.swing.*;
                     add(Zoom);
                     add(restart);
                     add(retain);
+                    add(FileName);
                     System.out.println("Opening Ui...");
                 } else {
                     remove(MaxColors);
@@ -447,6 +454,7 @@ import javax.swing.*;
                     remove(Zoom);
                     remove(restart);
                     remove(retain);
+                    remove(FileName);
                     System.out.println("Closing Ui");
                 }
             } else if (!toggleComp && zoomLvl > 0) {
@@ -468,9 +476,11 @@ import javax.swing.*;
         void print(BufferedImage bi) {
             try {
                 // retrieve image
-                File outputfile = new File("saved.png");
-                ImageIO.write(bi, "png", outputfile);
-            } catch (IOException e) {
+                if (FileName.getText().isEmpty()) {
+                    File outputfile = new File(FileName.getText() + ".png");
+                    ImageIO.write(bi, "png", outputfile);
+                }
+            } catch (IOException e){
             }
             printImage = false;
             repaint();
