@@ -476,7 +476,7 @@ import javax.swing.*;
         void print(BufferedImage bi) {
             try {
                 // retrieve image
-                if (FileName.getText().isEmpty()) {
+                if (!FileName.getText().isEmpty()) {
                     File outputfile = new File(FileName.getText() + ".png");
                     ImageIO.write(bi, "png", outputfile);
                 }
