@@ -49,6 +49,7 @@ import javax.swing.*;
         JTextField MaxColors;
         JTextField Zoom;
         JTextField FileName;
+        JTextField size;
         JComboBox clrnum;
         JComboBox clr;
         JButton sav;
@@ -83,6 +84,9 @@ import javax.swing.*;
             sav = new JButton("Img");
             sav.setBounds(110, 50, 60, 20);
 
+            size = new JTextField("4");
+            size.setBounds(180, 50, 20, 20);
+
             restart = new JButton("←");
             restart.setBounds(110, 80, 60, 20);
 
@@ -113,6 +117,7 @@ import javax.swing.*;
                     remove(restart);
                     remove(retain);
                     remove(FileName);
+                    remove(size);
                     System.out.println("Closing Ui");
                     repaint();
                 }
@@ -175,6 +180,7 @@ import javax.swing.*;
         @Override
         public void paint(Graphics g) // har laves selve mandenbrot, der er her selve matematikken sker
         {
+            if (Integer.valueOf(size.getText())>0) picareax = picareay = 1024*Integer.valueOf(size.getText());
             BufferedImage image = new BufferedImage(picareax, picareay, BufferedImage.TYPE_INT_RGB);
             Graphics w = image.createGraphics();
             if (printImage) {
@@ -228,6 +234,7 @@ import javax.swing.*;
                 clrnum.grabFocus();
                 clr.grabFocus();
                 sav.grabFocus();
+                size.grabFocus();
                 Zoom.grabFocus();
                 restart.grabFocus();
                 retain.grabFocus();
@@ -445,6 +452,7 @@ import javax.swing.*;
                     add(restart);
                     add(retain);
                     add(FileName);
+                    add(size);
                     System.out.println("Opening Ui...");
                 } else {
                     remove(MaxColors);
@@ -455,6 +463,7 @@ import javax.swing.*;
                     remove(restart);
                     remove(retain);
                     remove(FileName);
+                    remove(size);
                     System.out.println("Closing Ui");
                 }
             } else if (!toggleComp && zoomLvl > 0) {
