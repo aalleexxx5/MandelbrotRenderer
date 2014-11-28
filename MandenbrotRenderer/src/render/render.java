@@ -432,6 +432,15 @@ import javax.swing.*;
             file.writeFile(output, "settings");
         }
 
+        void setSave(){
+            String output;
+            output = "C? "+ String.valueOf(clrnum.getItemCount()) + "#" + "\n";
+            for (int i =1; i<clrnum.getItemCount(); i++) {
+                output = output + "C" + String.valueOf(i) + Coloring.get(i-1) + "#" + "\n";
+            }
+            file.writeFile(output, "savefile");
+        }
+
 
         @Override
         public void mouseClicked(MouseEvent e) { //finder hvor du trykker og ændre på værdierne REEL og IMAG
