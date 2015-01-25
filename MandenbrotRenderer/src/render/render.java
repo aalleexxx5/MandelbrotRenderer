@@ -20,8 +20,8 @@ import javax.swing.*;
             initUI();
         }
 
-        int AREAX = 700; // TODO: aspect ratio
-        int AREAY = 700;
+        int AREAX = 1000; // TODO: aspect ratio
+        int AREAY = 1000;
         int picareax = 4096;
         int picareay = 4096;
         int count;
@@ -43,7 +43,7 @@ import javax.swing.*;
         boolean printImage = false;
         Color farve;
         inout file = new inout();
-        ArrayList Coloring = new ArrayList(); // lagre rekkefølgen af farver
+        ArrayList<String> Coloring = new ArrayList<String>(); // lagre rekkefølgen af farver
         ArrayList ClrVal = new ArrayList(); //indeholder værdien af de enkelte farver
 
         JTextField MaxColors;
@@ -169,9 +169,9 @@ import javax.swing.*;
                     cNum = Coloring.size();
                     LOOP_LIMIT = 255 * cNum;
                     if (Coloring.size() <= clrnum.getSelectedIndex()) {
-                        Coloring.add(clrnum.getSelectedIndex(), clr.getSelectedItem());
+                        Coloring.add(clrnum.getSelectedIndex(), clr.getSelectedItem().toString());
                     } else {
-                        Coloring.set(clrnum.getSelectedIndex(), clr.getSelectedItem());
+                        Coloring.set(clrnum.getSelectedIndex(), clr.getSelectedItem().toString());
                     }
                 }
             });
@@ -184,6 +184,7 @@ import javax.swing.*;
             BufferedImage image = new BufferedImage(picareax, picareay, BufferedImage.TYPE_INT_RGB);
             Graphics w = image.createGraphics();
             if (printImage) {
+                sendToPrint();
                 Dx = (REEL_MAX - REEL_MIN) / picareax;
                 Dy = (IMAG_MAX - IMAG_MIN) / picareay;
                 currentAreaY = picareay;
@@ -196,8 +197,6 @@ import javax.swing.*;
             }
             //Dx = -0.00357142857142857142857142857143;
             //Dy = -0.00357142857142857142857142857143;
-            p0 = REEL_MIN;
-            q0 = IMAG_MIN;
             x = REEL_MIN;
             y = IMAG_MIN;
             p1 = 0;
@@ -441,6 +440,15 @@ import javax.swing.*;
             file.writeFile(output, "savefile");
         }
 
+        void sendToPrint(){
+            printImage=false;
+            Imagerenderer render = new Imagerenderer();
+            System.out.println("image away");
+            render.render(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, Coloring.toArray(new String[Coloring.size()]) , FileName.getText());
+            System.out.println("you should have regained control");
+            repaint();
+        }
+
 
         @Override
         public void mouseClicked(MouseEvent e) { //finder hvor du trykker og ændre på værdierne REEL og IMAG
@@ -545,5 +553,5 @@ Creating a huge image from a zoomed in part, --specify the dimension in the UI >
 Metadata for the images?
 make tray  flash when rendering is complete, include a sound notification
 add orange turquoise violet
-revise colour engine
+revise colour engine delta in individual colours, this makes for custom colours
 */
