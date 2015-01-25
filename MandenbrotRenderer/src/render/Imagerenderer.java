@@ -8,8 +8,37 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 // Created on 25-01-2015.
-public class Imagerenderer {
-    public void render(int size, double reel_max, double reel_min, double imag_max, double imag_min, String[] coloring, String filename) {
+public class Imagerenderer implements Runnable {
+    private Thread t;
+    int size;
+    double reel_max;
+    double reel_min;
+    double imag_max;
+    double imag_min;
+    String[] coloring;
+    String filename;
+    public void params(int Size, double Reel_max, double Reel_min, double Imag_max, double Imag_min, String[] Coloring, String Filename) {
+        this.size = Size;
+        this.reel_max = Reel_max;
+        this.reel_min = Reel_min;
+        this.imag_max = Imag_max;
+        this.imag_min = Imag_min;
+        this.coloring = Coloring;
+        this.filename = Filename;
+    }
+
+    public void start ()
+    {
+        System.out.println("Starting " +  "renderThread" );
+        if (t == null)
+        {
+            t = new Thread (this, "renderThread");
+            t.start ();
+        }
+    }
+
+    public void run() {
+        System.out.println("renderThread is rendering");
         int picareax =1024;
         int picareay =1024;
         if (size > 0) picareax = picareay = 1024 * size;
@@ -44,7 +73,7 @@ public class Imagerenderer {
                     count++;
                 }
                 if (Math.abs(p0) < LIMIT && Math.abs(q0) < LIMIT) {
-                    w.setColor(Color.white);
+                    w.setColor(Color.black);
                 } else {
                     w.setColor(ColorPix(count, coloring));
                 }
@@ -55,6 +84,7 @@ public class Imagerenderer {
             y = y + Dy;
         }
         print(image, filename);
+        System.out.println("renderThread completed");
     }
     private Color ColorPix(int count, String[] coloring){
         int c1;

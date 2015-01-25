@@ -133,8 +133,7 @@ import javax.swing.*;
             sav.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent event) {
-                    printImage = (!printImage);
-                    if (printImage) System.out.println("creating image");
+                    sendToPrint();
                     repaint();
                 }
             });
@@ -182,9 +181,7 @@ import javax.swing.*;
         {
             if (Integer.valueOf(size.getText())>0) picareax = picareay = 1024*Integer.valueOf(size.getText());
             BufferedImage image = new BufferedImage(picareax, picareay, BufferedImage.TYPE_INT_RGB);
-            Graphics w = image.createGraphics();
             if (printImage) {
-                sendToPrint();
                 Dx = (REEL_MAX - REEL_MIN) / picareax;
                 Dy = (IMAG_MAX - IMAG_MIN) / picareay;
                 currentAreaY = picareay;
@@ -214,15 +211,12 @@ import javax.swing.*;
                         count++;
                     }
                     if (Math.abs(p0) < LIMIT && Math.abs(q0) < LIMIT) {
-                        if (printImage) w.setColor(Color.black);
-                        else g.setColor(Color.black);
+                        g.setColor(Color.black);
                     } else {
                         colorPix();
-                        if (printImage) w.setColor(farve);
-                        else g.setColor(farve);
+                        g.setColor(farve);
                     }
-                    if (printImage) w.drawLine(j, i, j, i);
-                    else g.drawLine(j, i, j, i);
+                    g.drawLine(j, i, j, i);
                     x = x + Dx;
                 }
                 x = REEL_MIN;
@@ -239,7 +233,6 @@ import javax.swing.*;
                 retain.grabFocus();
                 FileName.grabFocus();
             }
-            if (printImage) print(image);
         }
 
 
@@ -444,7 +437,9 @@ import javax.swing.*;
             printImage=false;
             Imagerenderer render = new Imagerenderer();
             System.out.println("image away");
-            render.render(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, Coloring.toArray(new String[Coloring.size()]) , FileName.getText());
+            render.params(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, Coloring.toArray(new String[Coloring.size()]) , FileName.getText());
+            render.start();
+            //render.run(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, Coloring.toArray(new String[Coloring.size()]) , FileName.getText());
             System.out.println("you should have regained control");
             repaint();
         }
@@ -499,22 +494,8 @@ import javax.swing.*;
             repaint();
         }
 
-        void print(BufferedImage bi) {
-            try {
-                // retrieve image
-                if (!FileName.getText().isEmpty()) {
-                    File outputfile = new File(FileName.getText() + ".png");
-                    ImageIO.write(bi, "png", outputfile);
-                }
-            } catch (IOException e){
-            }
-            printImage = false;
-            repaint();
-            System.out.println("image saved successfully");
-        }
 
-
-    public static void main(String[] args) {
+        public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable(){
             @Override
             public void run(){
