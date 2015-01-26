@@ -17,6 +17,7 @@ public class Imagerenderer implements Runnable {
     double imag_min;
     String[] coloring;
     String filename;
+    double prcnt = -1;
     public void params(int Size, double Reel_max, double Reel_min, double Imag_max, double Imag_min, String[] Coloring, String Filename) {
         this.size = Size;
         this.reel_max = Reel_max;
@@ -39,6 +40,7 @@ public class Imagerenderer implements Runnable {
 
     public void run() {
         System.out.println("renderThread is rendering");
+        render pgress = new render();
         int picareax =1024;
         int picareay =1024;
         if (size > 0) picareax = picareay = 1024 * size;
@@ -59,8 +61,11 @@ public class Imagerenderer implements Runnable {
         double LIMIT = 20.0;
         int LOOP_LIMIT = coloring.length*255;
         int count;
-
+        double dpcnt; //Delta percent
+        dpcnt = 100.0/currentAreaY;
+        prcnt = 0;
         for (int i = 0; i < currentAreaY; i++) {
+            prcnt = prcnt + dpcnt;
             for (int j = 0; j < currentAreaX; j++) {
                 count = 0;
                 p0 = x;

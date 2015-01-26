@@ -1,6 +1,5 @@
 package render;
-import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -9,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.TimerTask;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -41,10 +41,12 @@ import javax.swing.*;
         boolean toggleUI = false;
         boolean toggleComp;
         boolean printImage = false;
+        Timer timer;
         Color farve;
         inout file = new inout();
         ArrayList<String> Coloring = new ArrayList<String>(); // lagre rekkefølgen af farver
         ArrayList ClrVal = new ArrayList(); //indeholder værdien af de enkelte farver
+        Imagerenderer renderThread;
 
         JTextField MaxColors;
         JTextField Zoom;
@@ -55,6 +57,10 @@ import javax.swing.*;
         JButton sav;
         JButton restart;
         JCheckBox retain;
+        JProgressBar renderProgress;
+        JPanel Graphicspanel;
+        JLayeredPane pane = new JLayeredPane();
+        GrapgicsPanel mandelbrot;
 
         public void initUI() {
             setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -63,6 +69,14 @@ import javax.swing.*;
             setLocationRelativeTo(null);
             setLayout(null);
             addMouseListener(this);
+
+            pane = new JLayeredPane();
+            pane.setBounds(0,0,AREAX,AREAY);
+            add(pane);
+
+            mandelbrot = new GrapgicsPanel();
+            mandelbrot.setBounds(0,0,AREAX,AREAY);
+            pane.add(mandelbrot,1);
 
             retain = new JCheckBox();
             retain.setBounds(180, 80, 20, 20);
@@ -93,6 +107,12 @@ import javax.swing.*;
             FileName = new JTextField("Filename");
             FileName.setBounds(210, 80, 100, 20);
 
+            renderProgress = new JProgressBar();
+            renderProgress.setBounds(60, AREAY - 20, 60, 20);
+            renderProgress.setMaximum(100);
+            renderProgress.setMaximum(0);
+            pane.add(renderProgress,1);
+
             Zoom.setText(String.valueOf(zoomLvl));
             MaxColors.setText(String.valueOf(Coloring.size()));
             clrnum.removeAllItems();
@@ -109,15 +129,15 @@ import javax.swing.*;
                     IMAG_MAX = 1.25; // max imaginære værdi
                     if (!retain.isSelected()) loadConfig();
                     toggleComp = false;
-                    remove(MaxColors);
-                    remove(clrnum);
-                    remove(clr);
-                    remove(sav);
-                    remove(Zoom);
-                    remove(restart);
-                    remove(retain);
-                    remove(FileName);
-                    remove(size);
+                    pane.remove(MaxColors);
+                    pane.remove(clrnum);
+                    pane.remove(clr);
+                    pane.remove(sav);
+                    pane.remove(Zoom);
+                    pane.remove(restart);
+                    pane.remove(retain);
+                    pane.remove(FileName);
+                    pane.remove(size);
                     System.out.println("Closing Ui");
                     repaint();
                 }
@@ -176,7 +196,56 @@ import javax.swing.*;
             });
         }
 
-        @Override
+        class GrapgicsPanel extends JPanel{
+            GrapgicsPanel() {
+                setPreferredSize(new Dimension(AREAX, AREAY));
+            }
+            @Override
+            public void paintComponent(Graphics g){
+                if (Integer.valueOf(size.getText())>0) picareax = picareay = 1024*Integer.valueOf(size.getText());
+                if (printImage) {
+                    Dx = (REEL_MAX - REEL_MIN) / picareax;
+                    Dy = (IMAG_MAX - IMAG_MIN) / picareay;
+                    currentAreaY = picareay;
+                    currentAreaX = picareax;
+                } else {
+                    Dx = (REEL_MAX - REEL_MIN) / AREAX;                 //Her er byttet om
+                    Dy = (IMAG_MAX - IMAG_MIN) / AREAY;                 //Her er byttet om
+                    currentAreaY = AREAY;
+                    currentAreaX = AREAX;
+                }
+                //Dx = -0.00357142857142857142857142857143;
+                //Dy = -0.00357142857142857142857142857143;
+                x = REEL_MIN;
+                y = IMAG_MIN;
+                for (int i = 0; i < currentAreaY; i++) {
+                    for (int j = 0; j < currentAreaX; j++) {
+                        count = 0;
+                        p0 = x;
+                        q0 = y;
+                        for (int k = 0; Math.abs(p0) <= LIMIT && Math.abs(q0) <= LIMIT && k < LOOP_LIMIT; k++) {
+                            p1 = p0 * p0 - q0 * q0 + x;
+                            q1 = 2 * p0 * q0 + y;
+                            p0 = p1;
+                            q0 = q1;
+                            count++;
+                        }
+                        if (Math.abs(p0) < LIMIT && Math.abs(q0) < LIMIT) {
+                            g.setColor(Color.black);
+                        } else {
+                            colorPix();
+                            g.setColor(farve);
+                        }
+                        g.drawLine(j, i, j, i);
+                        x = x + Dx;
+                    }
+                    x = REEL_MIN;
+                    y = y + Dy;
+                }
+            }
+        }
+
+        /*@Override
         public void paint(Graphics g) // har laves selve mandenbrot, der er her selve matematikken sker
         {
             if (Integer.valueOf(size.getText())>0) picareax = picareay = 1024*Integer.valueOf(size.getText());
@@ -230,7 +299,7 @@ import javax.swing.*;
                 retain.grabFocus();
                 FileName.grabFocus();
             }
-        }
+        }*/
 
 
         void colorPix() { //giver variablen "farve" en farve, der tildeles til en pixel, dette gøres for hvær pixel
@@ -432,12 +501,26 @@ import javax.swing.*;
 
         void sendToPrint(){
             printImage=false;
-            Imagerenderer render = new Imagerenderer();
+            renderThread = new Imagerenderer();
             System.out.println("image away");
-            render.params(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, Coloring.toArray(new String[Coloring.size()]) , FileName.getText());
-            render.start();
+            renderThread.params(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, Coloring.toArray(new String[Coloring.size()]), FileName.getText());
+            renderThread.start();
+            progress pgbar = new progress();
+            timer = new Timer(200, pgbar);
+            timer.start();
             System.out.println("you should have regained control");
             repaint();
+        }
+
+        public class progress implements ActionListener {
+            public void actionPerformed(ActionEvent e){
+                if (renderThread.prcnt==-1) {
+                    timer.stop();
+                    return;
+                }
+                //System.out.println(renderThread.prcnt);
+                renderProgress.setValue((int)renderThread.prcnt);
+            }
         }
 
 
@@ -452,26 +535,26 @@ import javax.swing.*;
             if (e.getX() > AREAX - 20 && e.getY() > AREAY - 20) {
                 toggleComp = (!toggleComp);
                 if (toggleComp) {
-                    add(MaxColors);
-                    add(clrnum);
-                    add(clr);
-                    add(sav);
-                    add(Zoom);
-                    add(restart);
-                    add(retain);
-                    add(FileName);
-                    add(size);
+                    pane.add(MaxColors,0);
+                    pane.add(clrnum,0);
+                    pane.add(clr,0);
+                    pane.add(sav,0);
+                    pane.add(Zoom,0);
+                    pane.add(restart,0);
+                    pane.add(retain,0);
+                    pane.add(FileName,0);
+                    pane.add(size,0);
                     System.out.println("Opening Ui...");
                 } else {
-                    remove(MaxColors);
-                    remove(clrnum);
-                    remove(clr);
-                    remove(sav);
-                    remove(Zoom);
-                    remove(restart);
-                    remove(retain);
-                    remove(FileName);
-                    remove(size);
+                    pane.remove(MaxColors);
+                    pane.remove(clrnum);
+                    pane.remove(clr);
+                    pane.remove(sav);
+                    pane.remove(Zoom);
+                    pane.remove(restart);
+                    pane.remove(retain);
+                    pane.remove(FileName);
+                    pane.remove(size);
                     System.out.println("Closing Ui");
                 }
             } else if (!toggleComp && zoomLvl > 0) {
