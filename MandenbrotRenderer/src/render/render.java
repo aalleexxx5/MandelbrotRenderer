@@ -180,7 +180,6 @@ import javax.swing.*;
         public void paint(Graphics g) // har laves selve mandenbrot, der er her selve matematikken sker
         {
             if (Integer.valueOf(size.getText())>0) picareax = picareay = 1024*Integer.valueOf(size.getText());
-            BufferedImage image = new BufferedImage(picareax, picareay, BufferedImage.TYPE_INT_RGB);
             if (printImage) {
                 Dx = (REEL_MAX - REEL_MIN) / picareax;
                 Dy = (IMAG_MAX - IMAG_MIN) / picareay;
@@ -196,8 +195,6 @@ import javax.swing.*;
             //Dy = -0.00357142857142857142857142857143;
             x = REEL_MIN;
             y = IMAG_MIN;
-            p1 = 0;
-            q1 = 0;
             for (int i = 0; i < currentAreaY; i++) {
                 for (int j = 0; j < currentAreaX; j++) {
                     count = 0;
@@ -439,7 +436,6 @@ import javax.swing.*;
             System.out.println("image away");
             render.params(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, Coloring.toArray(new String[Coloring.size()]) , FileName.getText());
             render.start();
-            //render.run(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, Coloring.toArray(new String[Coloring.size()]) , FileName.getText());
             System.out.println("you should have regained control");
             repaint();
         }

@@ -80,7 +80,7 @@ public class Imagerenderer implements Runnable {
                 w.drawLine(j, i, j, i);
                 x = x + Dx;
             }
-            x = imag_max;
+            x = reel_min;
             y = y + Dy;
         }
         print(image, filename);
@@ -267,3 +267,7 @@ public class Imagerenderer implements Runnable {
         }
     }
 }
+/*
+TODO:
+progress bar!
+ */
