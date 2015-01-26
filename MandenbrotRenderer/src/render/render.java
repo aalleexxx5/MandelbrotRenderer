@@ -20,8 +20,8 @@ import javax.swing.*;
             initUI();
         }
 
-        int AREAX = 1000; // TODO: aspect ratio
-        int AREAY = 1000;
+        int AREAX = 900; // TODO: aspect ratio
+        int AREAY = 900;
         int picareax = 4096;
         int picareay = 4096;
         int count;
@@ -58,25 +58,38 @@ import javax.swing.*;
         JButton restart;
         JCheckBox retain;
         JProgressBar renderProgress;
+        JProgressBar rendered;
         JPanel Graphicspanel;
         JLayeredPane pane = new JLayeredPane();
         GrapgicsPanel mandelbrot;
 
         public void initUI() {
             setDefaultCloseOperation(EXIT_ON_CLOSE);
-            setSize(AREAX, AREAY);
+            setSize(AREAX+8, AREAY+38);
             setTitle("Fractals!!");
             setLocationRelativeTo(null);
             setLayout(null);
             addMouseListener(this);
 
             pane = new JLayeredPane();
-            pane.setBounds(0,0,AREAX,AREAY);
+            pane.setBounds(0, 0, AREAX, AREAY);
             add(pane);
 
+            rendered = new JProgressBar(0,100);
+            rendered.setBounds(2, AREAY-20, 100, 20);
+            rendered.setValue(0);
+            rendered.setStringPainted(true);
+            pane.add(rendered,1);
+
+            renderProgress = new JProgressBar(0,100);
+            renderProgress.setBounds(104, AREAY-20, 100, 20);
+            renderProgress.setValue(0);
+            renderProgress.setStringPainted(true);
+            pane.add(renderProgress,0);
+
             mandelbrot = new GrapgicsPanel();
-            mandelbrot.setBounds(0,0,AREAX,AREAY);
-            pane.add(mandelbrot,1);
+            mandelbrot.setBounds(0, 0, AREAX, AREAY);
+            pane.add(mandelbrot, 2);
 
             retain = new JCheckBox();
             retain.setBounds(180, 80, 20, 20);
@@ -106,12 +119,6 @@ import javax.swing.*;
 
             FileName = new JTextField("Filename");
             FileName.setBounds(210, 80, 100, 20);
-
-            renderProgress = new JProgressBar();
-            renderProgress.setBounds(60, AREAY - 20, 60, 20);
-            renderProgress.setMaximum(100);
-            renderProgress.setMaximum(0);
-            pane.add(renderProgress,1);
 
             Zoom.setText(String.valueOf(zoomLvl));
             MaxColors.setText(String.valueOf(Coloring.size()));
@@ -506,19 +513,19 @@ import javax.swing.*;
             renderThread.params(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, Coloring.toArray(new String[Coloring.size()]), FileName.getText());
             renderThread.start();
             progress pgbar = new progress();
-            timer = new Timer(200, pgbar);
+            timer = new Timer(500, pgbar);
             timer.start();
             System.out.println("you should have regained control");
-            repaint();
         }
 
         public class progress implements ActionListener {
             public void actionPerformed(ActionEvent e){
-                if (renderThread.prcnt==-1) {
+                System.out.println(renderThread.prcnt);
+                if (renderThread.prcnt==100) {
+                    renderProgress.setValue((int) renderThread.prcnt);
                     timer.stop();
                     return;
                 }
-                //System.out.println(renderThread.prcnt);
                 renderProgress.setValue((int)renderThread.prcnt);
             }
         }
@@ -539,9 +546,9 @@ import javax.swing.*;
                     pane.add(clrnum,0);
                     pane.add(clr,0);
                     pane.add(sav,0);
-                    pane.add(Zoom,0);
+                    pane.add(Zoom, 0);
                     pane.add(restart,0);
-                    pane.add(retain,0);
+                    pane.add(retain, 0);
                     pane.add(FileName,0);
                     pane.add(size,0);
                     System.out.println("Opening Ui...");

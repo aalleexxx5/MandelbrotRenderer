@@ -17,7 +17,7 @@ public class Imagerenderer implements Runnable {
     double imag_min;
     String[] coloring;
     String filename;
-    double prcnt = -1;
+    double prcnt = 0;
     public void params(int Size, double Reel_max, double Reel_min, double Imag_max, double Imag_min, String[] Coloring, String Filename) {
         this.size = Size;
         this.reel_max = Reel_max;
