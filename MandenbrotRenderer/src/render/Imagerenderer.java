@@ -62,7 +62,7 @@ public class Imagerenderer implements Runnable {
         int LOOP_LIMIT = coloring.length*255;
         int count;
         double dpcnt; //Delta percent
-        dpcnt = 100.0/currentAreaY;
+        dpcnt = 99.99/currentAreaY;
         prcnt = 0;
         for (int i = 0; i < currentAreaY; i++) {
             prcnt = prcnt + dpcnt;
@@ -88,7 +88,9 @@ public class Imagerenderer implements Runnable {
             x = reel_min;
             y = y + Dy;
         }
+        prcnt = -1;
         print(image, filename);
+        prcnt = 100;
         System.out.println("renderThread completed");
     }
     private Color ColorPix(int count, String[] coloring){

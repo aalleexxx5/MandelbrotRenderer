@@ -20,8 +20,8 @@ import javax.swing.*;
             initUI();
         }
 
-        int AREAX = 900; // TODO: aspect ratio
-        int AREAY = 900;
+        int AREAX = 700; // TODO: aspect ratio
+        int AREAY = 700;
         int picareax = 4096;
         int picareay = 4096;
         int count;
@@ -161,7 +161,6 @@ import javax.swing.*;
                 @Override
                 public void actionPerformed(ActionEvent event) {
                     sendToPrint();
-                    repaint();
                 }
             });
 
@@ -251,62 +250,6 @@ import javax.swing.*;
                 }
             }
         }
-
-        /*@Override
-        public void paint(Graphics g) // har laves selve mandenbrot, der er her selve matematikken sker
-        {
-            if (Integer.valueOf(size.getText())>0) picareax = picareay = 1024*Integer.valueOf(size.getText());
-            if (printImage) {
-                Dx = (REEL_MAX - REEL_MIN) / picareax;
-                Dy = (IMAG_MAX - IMAG_MIN) / picareay;
-                currentAreaY = picareay;
-                currentAreaX = picareax;
-            } else {
-                Dx = (REEL_MAX - REEL_MIN) / AREAX;                 //Her er byttet om
-                Dy = (IMAG_MAX - IMAG_MIN) / AREAY;                 //Her er byttet om
-                currentAreaY = AREAY;
-                currentAreaX = AREAX;
-            }
-            //Dx = -0.00357142857142857142857142857143;
-            //Dy = -0.00357142857142857142857142857143;
-            x = REEL_MIN;
-            y = IMAG_MIN;
-            for (int i = 0; i < currentAreaY; i++) {
-                for (int j = 0; j < currentAreaX; j++) {
-                    count = 0;
-                    p0 = x;
-                    q0 = y;
-                    for (int k = 0; Math.abs(p0) <= LIMIT && Math.abs(q0) <= LIMIT && k < LOOP_LIMIT; k++) {
-                        p1 = p0 * p0 - q0 * q0 + x;
-                        q1 = 2 * p0 * q0 + y;
-                        p0 = p1;
-                        q0 = q1;
-                        count++;
-                    }
-                    if (Math.abs(p0) < LIMIT && Math.abs(q0) < LIMIT) {
-                        g.setColor(Color.black);
-                    } else {
-                        colorPix();
-                        g.setColor(farve);
-                    }
-                    g.drawLine(j, i, j, i);
-                    x = x + Dx;
-                }
-                x = REEL_MIN;
-                y = y + Dy;
-            }
-            if (toggleComp) {
-                MaxColors.grabFocus();
-                clrnum.grabFocus();
-                clr.grabFocus();
-                sav.grabFocus();
-                size.grabFocus();
-                Zoom.grabFocus();
-                restart.grabFocus();
-                retain.grabFocus();
-                FileName.grabFocus();
-            }
-        }*/
 
 
         void colorPix() { //giver variablen "farve" en farve, der tildeles til en pixel, dette gøres for hvær pixel
@@ -522,11 +465,17 @@ import javax.swing.*;
             public void actionPerformed(ActionEvent e){
                 System.out.println(renderThread.prcnt);
                 if (renderThread.prcnt==100) {
-                    renderProgress.setValue((int) renderThread.prcnt);
+                    renderProgress.setValue(100);
+                    renderProgress.setIndeterminate(false);
+                    renderProgress.setString(null);
                     timer.stop();
                     return;
+                } else if (renderThread.prcnt == -1){
+                    renderProgress.setIndeterminate(true);
+                    renderProgress.setString("saving");
+                } else{
+                    renderProgress.setValue((int)renderThread.prcnt);
                 }
-                renderProgress.setValue((int)renderThread.prcnt);
             }
         }
 
