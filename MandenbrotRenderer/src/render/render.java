@@ -12,47 +12,42 @@ import java.util.ArrayList;
 //@author alex
 
     public final class render extends JFrame implements MouseListener {
-        int AREAX = 700; // TODO: aspect ratio
-        int AREAY = 700;
-        int progressRefreshreteCurrent = 50;
-        int progressRefreshrateBackground = 200;
-        int count;
-        int cNum;
-        int currentAreaX;
-        int currentAreaY;
-        int zoomLvl = 400;
-        double REEL_MIN = -2.0; // min reelle værdi
-        double REEL_MAX = 0.5; // max reelle værdi
-        double IMAG_MIN = -1.25; // min imaginære værdi
-        double IMAG_MAX = 1.25; // max imaginære værdi
-        double LIMIT = 20.0; //grænseværdien før loopen stopper
-        double LOOP_LIMIT = 509;//grænseværdien for while loop iterationer
-        double p0, q0, p1, q1, x, y;
-        double Dx = (REEL_MAX - REEL_MIN) / AREAX;                              //Her er byttet om
-        double Dy = (IMAG_MAX - IMAG_MIN) / AREAY;//delta-x og delta-y          //Her er byttet om
-        double percnt;
-        boolean toggleComp;
-        boolean printImage = false;
-        Timer timer;  // todo: rename this
-        Timer timer2; // todo: rename this
-        Color farve;
-        inout file = new inout();
-        ArrayList<String> Coloring = new ArrayList<>(); // lagre rekkefølgen af farver
-        ArrayList<Integer> ClrVal = new ArrayList<>(); //indeholder værdien af de enkelte farver
-        Imagerenderer renderThread;
-        JTextField MaxColors;
-        JTextField Zoom;
-        JTextField FileName;
-        JTextField size;
-        JComboBox<Integer> clrnum;
-        JComboBox<String> clr;
-        JButton sav;
-        JButton restart;
-        JCheckBox retain;
-        JProgressBar renderProgress;
-        JProgressBar rendered;
-        JLayeredPane pane = new JLayeredPane();
-        render.GraphicsPanel mandelbrot;
+        private final int AREAX = 700; // TODO: aspect ratio
+        private final int AREAY = 700;
+        private final int progressRefreshrateCurrent = 50;
+        private final int progressRefreshrateBackground = 200;
+        private final inout file = new inout();
+        private final ArrayList<String> Coloring = new ArrayList<>(); // lagre rekkefølgen af farver
+        private final ArrayList<Integer> ClrVal = new ArrayList<>(); //indeholder værdien af de enkelte farver
+        private int count;
+        private int cNum;
+        private int zoomLvl = 400;
+        private double REEL_MIN = -2.0; // min reelle værdi
+        private double REEL_MAX = 0.5; // max reelle værdi
+        private double IMAG_MIN = -1.25; // min imaginære værdi
+        private double IMAG_MAX = 1.25; // max imaginære værdi
+        private double LOOP_LIMIT = 509;//grænseværdien for while loop iterationer
+        private double Dx = (REEL_MAX - REEL_MIN) / AREAX;                              //Her er byttet om
+        private double Dy = (IMAG_MAX - IMAG_MIN) / AREAY;//delta-x og delta-y          //Her er byttet om
+        private double percnt;
+        private boolean toggleComp;
+        private Timer timer;  // TODO: rename this
+        private Timer timer2; // TODO: rename this
+        private Color farve;
+        private Imagerenderer renderThread;
+        private JTextField MaxColors;
+        private JTextField Zoom;
+        private JTextField FileName;
+        private JTextField size;
+        private JComboBox<Integer> clrnum;
+        private JComboBox<String> clr;
+        private JButton sav;
+        private JButton restart;
+        private JCheckBox retain;
+        private JProgressBar renderProgress;
+        private JProgressBar rendered;
+        private JLayeredPane pane = new JLayeredPane();
+        private render.GraphicsPanel mandelbrot;
 
         public render() {
             loadConfig();
@@ -68,7 +63,7 @@ import java.util.ArrayList;
             });
         }
 
-        public void initUI() {
+        void initUI() {
             setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             setSize(AREAX+8, AREAY+38);
             setTitle("Fractals!!");
@@ -155,7 +150,7 @@ import java.util.ArrayList;
                     repaint();
                 }
             });
-//TODO: Clean up mess from here on down!
+//TODO: Clean up mess from here on down! make comments to get an overview
 
             Zoom.addActionListener(new ActionListener() {
                 @Override
@@ -400,17 +395,18 @@ import java.util.ArrayList;
             file.writeFile(output, "settings");
         }
 
-        void setSave(){
-            String output;
-            output = "C? "+ String.valueOf(clrnum.getItemCount()) + "#" + "\n";
-            for (int i =1; i<clrnum.getItemCount(); i++) {
-                output = output + "C" + String.valueOf(i) + Coloring.get(i-1) + "#" + "\n";
-            }
-            file.writeFile(output, "savefile");
-        }
+// --Commented out by Inspection START (28-01-2015 23:28):
+//        void setSave(){
+//            String output;
+//            output = "C? "+ String.valueOf(clrnum.getItemCount()) + "#" + "\n";
+//            for (int i =1; i<clrnum.getItemCount(); i++) {
+//                output = output + "C" + String.valueOf(i) + Coloring.get(i-1) + "#" + "\n";
+//            }
+//            file.writeFile(output, "savefile");
+//        }
+// --Commented out by Inspection STOP (28-01-2015 23:28)
 
         void sendToPrint(){
-            printImage=false;
             renderThread = new Imagerenderer();
             System.out.println("image away");
             renderThread.params(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, Coloring.toArray(new String[Coloring.size()]), FileName.getText());
@@ -512,15 +508,15 @@ import java.util.ArrayList;
                 }
             }
 
-            protected void rerender() {
+            void rerender() {
                 CurrentProgress pgbar1 = new CurrentProgress();
-                timer2 = new Timer(progressRefreshreteCurrent, pgbar1);
+                timer2 = new Timer(progressRefreshrateCurrent, pgbar1);
                 timer2.start();
                 new RenderWorker(this).execute();
             }
 
-            protected class RenderWorker extends SwingWorker<BufferedImage, Integer> {
-                private ImageConsumer consumer;
+            class RenderWorker extends SwingWorker<BufferedImage, Integer> {
+                private final ImageConsumer consumer;
 
                 public RenderWorker(ImageConsumer consumer) {
                     this.consumer = consumer;
@@ -535,21 +531,20 @@ import java.util.ArrayList;
                     percnt = 0;
                     Dx = (REEL_MAX - REEL_MIN) / AREAX;                 //Her er byttet om
                     Dy = (IMAG_MAX - IMAG_MIN) / AREAY;                 //Her er byttet om
-                    currentAreaY = AREAY;
-                    currentAreaX = AREAX;
                     //Dx = -0.00357142857142857142857142857143;
                     //Dy = -0.00357142857142857142857142857143;
-                    x = REEL_MIN;
-                    y = IMAG_MIN;
-                    for (int i = 0; i < currentAreaY; i++) {
+                    double x = REEL_MIN;
+                    double y = IMAG_MIN;
+                    for (int i = 0; i < AREAY; i++) {
                         percnt = percnt + dpcnt;
-                        for (int j = 0; j < currentAreaX; j++) {
+                        for (int j = 0; j < AREAX; j++) {
                             count = 0;
-                            p0 = x;
-                            q0 = y;
+                            double p0 = x;
+                            double q0 = y;
+                            double LIMIT = 20.0;
                             for (int k = 0; Math.abs(p0) <= LIMIT && Math.abs(q0) <= LIMIT && k < LOOP_LIMIT; k++) {
-                                p1 = p0 * p0 - q0 * q0 + x;
-                                q1 = 2 * p0 * q0 + y;
+                                double p1 = p0 * p0 - q0 * q0 + x;
+                                double q1 = 2 * p0 * q0 + y;
                                 p0 = p1;
                                 q0 = q1;
                                 count++;
@@ -581,7 +576,7 @@ import java.util.ArrayList;
             }
         }
 
-        public class RenderProgress implements ActionListener {
+        private class RenderProgress implements ActionListener {
             public void actionPerformed(ActionEvent e) {
                 System.out.println(renderThread.prcnt);
                 if (renderThread.prcnt == 100) {
@@ -598,7 +593,7 @@ import java.util.ArrayList;
             }
         }
 
-        public class CurrentProgress implements ActionListener {
+        private class CurrentProgress implements ActionListener {
             public void actionPerformed(ActionEvent e) {
                 rendered.setValue((int) percnt);
                 if ((int) percnt == 100) {
@@ -608,18 +603,25 @@ import java.util.ArrayList;
         }
 
 }
-/* TODO:
-saves, loaded from the UI in a combobox, stored in multiple txtfiles. the amount of saves stored in a main file + names
+/*
 UI:
-add a setting to a save/reset from the UI<
 Optimise UI<
-Improove UI load time
-remove colors from the UI
+Improve UI load time (multi threading helped a bit)
+saves, loaded from the UI in a combobox, stored in multiple text files. the amount of saves stored in a main file + names
+UI descriptions
 
-Animations? like a spinner thing while UI is loading
-Creating a huge image from a zoomed in part, --specify the dimension in the UI >filename in UI
 Metadata for the images?
+watermark? optional?
 make tray  flash when rendering is complete, include a sound notification
 add orange turquoise violet
 revise colour engine delta in individual colours, this makes for custom colours
+optimise (there is always optimisation)
+multiple ways to optimise (rendering time vs. memory vs. space used.. etc)
+remove/translate old comments
+
+COMPLETED:
+Creating a huge image from a zoomed in part, --specify the dimension in the UI >filename in UI
+Animations? like a spinner thing while UI is loading COMPLETED: progress bar
+add a setting to a save/reset from the UI< COMPLETED: put op two buttons for saving an image and resetting
+remove colors from the UI COMPLETED: reset added
 */
