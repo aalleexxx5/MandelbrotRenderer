@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 // Created on 25-01-2015.
 public class Imagerenderer implements Runnable {
-    private Thread t;
     int size;
     double reel_max;
     double reel_min;
@@ -18,6 +17,8 @@ public class Imagerenderer implements Runnable {
     String[] coloring;
     String filename;
     double prcnt = 0;
+    private Thread t;
+
     public void params(int Size, double Reel_max, double Reel_min, double Imag_max, double Imag_min, String[] Coloring, String Filename) {
         this.size = Size;
         this.reel_max = Reel_max;
@@ -40,7 +41,6 @@ public class Imagerenderer implements Runnable {
 
     public void run() {
         System.out.println("renderThread is rendering");
-        render pgress = new render();
         int picareax =1024;
         int picareay =1024;
         if (size > 0) picareax = picareay = 1024 * size;
@@ -56,8 +56,8 @@ public class Imagerenderer implements Runnable {
         double q0;
         double x = reel_min;
         double y = imag_min;
-        double p1 = 0;
-        double q1 = 0;
+        double p1;
+        double q1;
         double LIMIT = 20.0;
         int LOOP_LIMIT = coloring.length*255;
         int count;
@@ -96,7 +96,6 @@ public class Imagerenderer implements Runnable {
     private Color ColorPix(int count, String[] coloring){
         int c1;
         int c2 = 0;
-        int c3;
         int r = 0;
         int g = 0;
         int b = 0;
@@ -105,7 +104,7 @@ public class Imagerenderer implements Runnable {
         String fg;
         String bg = "Yellow";
 
-        ArrayList ClrVal = new ArrayList();
+        ArrayList<Integer> ClrVal = new ArrayList<>();
         for (int i = 0; i <= (count / 255) - 1; i++) ClrVal.add(255);
         if (ClrVal.size() < cNum) ClrVal.add(count % 255);
 
@@ -271,10 +270,11 @@ public class Imagerenderer implements Runnable {
                 ImageIO.write(bi, "png", outputfile);
             }
         } catch (IOException e){
+            e.printStackTrace();
         }
     }
 }
 /*
 TODO:
-progress bar!
+RenderProgress bar!
  */

@@ -1,29 +1,21 @@
 package render;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.TimerTask;
-import javax.imageio.ImageIO;
-import javax.swing.*;
 
 //@author alex
 
     public final class render extends JFrame implements MouseListener {
-        public render() {
-            loadConfig();
-            initUI();
-        }
-
         int AREAX = 700; // TODO: aspect ratio
         int AREAY = 700;
-        int picareax = 4096;
-        int picareay = 4096;
+        int progressRefreshreteCurrent = 50;
+        int progressRefreshrateBackground = 200;
         int count;
         int cNum;
         int currentAreaX;
@@ -38,33 +30,46 @@ import javax.swing.*;
         double p0, q0, p1, q1, x, y;
         double Dx = (REEL_MAX - REEL_MIN) / AREAX;                              //Her er byttet om
         double Dy = (IMAG_MAX - IMAG_MIN) / AREAY;//delta-x og delta-y          //Her er byttet om
-        boolean toggleUI = false;
+        double percnt;
         boolean toggleComp;
         boolean printImage = false;
-        Timer timer;
+        Timer timer;  // todo: rename this
+        Timer timer2; // todo: rename this
         Color farve;
         inout file = new inout();
-        ArrayList<String> Coloring = new ArrayList<String>(); // lagre rekkefølgen af farver
-        ArrayList ClrVal = new ArrayList(); //indeholder værdien af de enkelte farver
+        ArrayList<String> Coloring = new ArrayList<>(); // lagre rekkefølgen af farver
+        ArrayList<Integer> ClrVal = new ArrayList<>(); //indeholder værdien af de enkelte farver
         Imagerenderer renderThread;
-
         JTextField MaxColors;
         JTextField Zoom;
         JTextField FileName;
         JTextField size;
-        JComboBox clrnum;
-        JComboBox clr;
+        JComboBox<Integer> clrnum;
+        JComboBox<String> clr;
         JButton sav;
         JButton restart;
         JCheckBox retain;
         JProgressBar renderProgress;
         JProgressBar rendered;
-        JPanel Graphicspanel;
         JLayeredPane pane = new JLayeredPane();
-        GrapgicsPanel mandelbrot;
+        render.GraphicsPanel mandelbrot;
+
+        public render() {
+            loadConfig();
+            initUI();
+        }
+
+        public static void main(String[] args) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    new render().setVisible(true);
+                }
+            });
+        }
 
         public void initUI() {
-            setDefaultCloseOperation(EXIT_ON_CLOSE);
+            setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             setSize(AREAX+8, AREAY+38);
             setTitle("Fractals!!");
             setLocationRelativeTo(null);
@@ -87,7 +92,7 @@ import javax.swing.*;
             renderProgress.setStringPainted(true);
             pane.add(renderProgress,0);
 
-            mandelbrot = new GrapgicsPanel();
+            mandelbrot = new render.GraphicsPanel();
             mandelbrot.setBounds(0, 0, AREAX, AREAY);
             pane.add(mandelbrot, 2);
 
@@ -100,12 +105,12 @@ import javax.swing.*;
             Zoom = new JTextField();
             Zoom.setBounds(50, 80, 50, 20);
 
-            clrnum = new JComboBox();
+            clrnum = new JComboBox<>();
             clrnum.addItem(1);
             clrnum.setBounds(210, 50, 100, 20);
 
             String[] colors = {"Red", "Green", "Blue", "Cyan", "Magenta", "Yellow", "Orange", "Forest", "Turquoise", "Sea", "Violet", "Lavender", "White", "Black"};
-            clr = new JComboBox(colors);
+            clr = new JComboBox<>(colors);
             clr.setBounds(330, 50, 100, 20);
 
             sav = new JButton("Img");
@@ -146,9 +151,11 @@ import javax.swing.*;
                     pane.remove(FileName);
                     pane.remove(size);
                     System.out.println("Closing Ui");
+                    mandelbrot.rerender();
                     repaint();
                 }
             });
+//TODO: Clean up mess from here on down!
 
             Zoom.addActionListener(new ActionListener() {
                 @Override
@@ -202,67 +209,15 @@ import javax.swing.*;
             });
         }
 
-        class GrapgicsPanel extends JPanel{
-            GrapgicsPanel() {
-                setPreferredSize(new Dimension(AREAX, AREAY));
-            }
-            @Override
-            public void paintComponent(Graphics g){
-                if (Integer.valueOf(size.getText())>0) picareax = picareay = 1024*Integer.valueOf(size.getText());
-                if (printImage) {
-                    Dx = (REEL_MAX - REEL_MIN) / picareax;
-                    Dy = (IMAG_MAX - IMAG_MIN) / picareay;
-                    currentAreaY = picareay;
-                    currentAreaX = picareax;
-                } else {
-                    Dx = (REEL_MAX - REEL_MIN) / AREAX;                 //Her er byttet om
-                    Dy = (IMAG_MAX - IMAG_MIN) / AREAY;                 //Her er byttet om
-                    currentAreaY = AREAY;
-                    currentAreaX = AREAX;
-                }
-                //Dx = -0.00357142857142857142857142857143;
-                //Dy = -0.00357142857142857142857142857143;
-                x = REEL_MIN;
-                y = IMAG_MIN;
-                for (int i = 0; i < currentAreaY; i++) {
-                    for (int j = 0; j < currentAreaX; j++) {
-                        count = 0;
-                        p0 = x;
-                        q0 = y;
-                        for (int k = 0; Math.abs(p0) <= LIMIT && Math.abs(q0) <= LIMIT && k < LOOP_LIMIT; k++) {
-                            p1 = p0 * p0 - q0 * q0 + x;
-                            q1 = 2 * p0 * q0 + y;
-                            p0 = p1;
-                            q0 = q1;
-                            count++;
-                        }
-                        if (Math.abs(p0) < LIMIT && Math.abs(q0) < LIMIT) {
-                            g.setColor(Color.black);
-                        } else {
-                            colorPix();
-                            g.setColor(farve);
-                        }
-                        g.drawLine(j, i, j, i);
-                        x = x + Dx;
-                    }
-                    x = REEL_MIN;
-                    y = y + Dy;
-                }
-            }
-        }
-
-
         void colorPix() { //giver variablen "farve" en farve, der tildeles til en pixel, dette gøres for hvær pixel
             int c1;
             int c2 = 0;
-            int c3;
             int r = 0;
             int g = 0;
             int b = 0;
             int mod = count % 255;
             String fg;
             String bg = "Yellow";
-
             ClrVal.clear();
             for (int i = 0; i <= (count / 255) - 1; i++) ClrVal.add(255);
             if (ClrVal.size() < cNum) ClrVal.add(count % 255);
@@ -297,26 +252,26 @@ import javax.swing.*;
                     break;
                 case "Orange":
                     r = c1;
-                    g = c1/2;
+                    g = c1 / 2;
                     break;
                 case "Forest":
-                    r = c1/2;
+                    r = c1 / 2;
                     g = c1;
                     break;
                 case "Turquoise":
                     g = c1;
-                    b = c1/2;
+                    b = c1 / 2;
                     break;
                 case "Sea":
-                    g = c1/2;
+                    g = c1 / 2;
                     b = c1;
                     break;
                 case "Violet":
                     b = c1;
-                    r = c1/2;
+                    r = c1 / 2;
                     break;
                 case "Lavender":
-                    b = c1/2;
+                    b = c1 / 2;
                     r = c1;
                     break;
                 case "White":
@@ -363,45 +318,51 @@ import javax.swing.*;
                         break;
                     case "Orange":
                         if (r != 255) r = c2;
-                        if (g != 127){
-                            if (g < 255) g = c2/2;
-                            if (g > 128) g=c1-c2/2;}
+                        if (g != 127) {
+                            if (g < 255) g = c2 / 2;
+                            if (g > 128) g = c1 - c2 / 2;
+                        }
                         if (b != 0) b = c1 - c2;
                         break;
                     case "Sea":
                         if (r != 0) r = c1 - c2;
-                        if (g != 127){
-                        if (g < 255) g = c2/2;
-                        if (g > 128) g=c1-c2/2;}
+                        if (g != 127) {
+                            if (g < 255) g = c2 / 2;
+                            if (g > 128) g = c1 - c2 / 2;
+                        }
                         if (b != 255) b = c2;
                         break;
                     case "Violet":
-                        if (r!= 127){
-                        if (r < 255) r = c2/2;
-                        if (r > 128) r=c1-c2/2;}
+                        if (r != 127) {
+                            if (r < 255) r = c2 / 2;
+                            if (r > 128) r = c1 - c2 / 2;
+                        }
                         if (g != 0) g = c1 - c2;
                         if (b != 255) b = c2;
                         break;
                     case "Lavender":
                         if (r != 255) r = c2;
-                        if (g != 0) g = c1-c2;
-                        if (b!=127){
-                        if (b < 255) b = c2/2;
-                        if (b > 128) b=c1-c2/2;}
+                        if (g != 0) g = c1 - c2;
+                        if (b != 127) {
+                            if (b < 255) b = c2 / 2;
+                            if (b > 128) b = c1 - c2 / 2;
+                        }
                         break;
                     case "Forest":
-                        if (r != 127){
-                        if (r < 255) r = c2/2;
-                        if (r > 128) r=c1-c2/2;}
+                        if (r != 127) {
+                            if (r < 255) r = c2 / 2;
+                            if (r > 128) r = c1 - c2 / 2;
+                        }
                         if (g != 255) g = c2;
-                        if (b != 0) b = c1-c2;
+                        if (b != 0) b = c1 - c2;
                         break;
                     case "Turquoise":
                         if (r != 0) r = c1 - c2;
                         if (g != 255) g = c2;
-                        if (b!=127){
-                        if (b < 255) b = c2/2;
-                        if (b > 128) b=c1/2;}
+                        if (b != 127) {
+                            if (b < 255) b = c2 / 2;
+                            if (b > 128) b = c1 / 2;
+                        }
                         break;
                     case "White":
                         if (r != 255) r = c2;
@@ -433,7 +394,6 @@ import javax.swing.*;
             }
         }
 
-
         void SetConfig() { //kode der (finder ud ad hvornår user interfacet skal loades og) sætter en configfil op med standard-værdier
             String output;
             output = "C? 2#" + "\n" + "C1 Blue#" + "\n" + "C2 Yellow#";
@@ -455,30 +415,11 @@ import javax.swing.*;
             System.out.println("image away");
             renderThread.params(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, Coloring.toArray(new String[Coloring.size()]), FileName.getText());
             renderThread.start();
-            progress pgbar = new progress();
-            timer = new Timer(500, pgbar);
+            render.RenderProgress pgbar = new render.RenderProgress();
+            timer = new Timer(progressRefreshrateBackground, pgbar);
             timer.start();
             System.out.println("you should have regained control");
         }
-
-        public class progress implements ActionListener {
-            public void actionPerformed(ActionEvent e){
-                System.out.println(renderThread.prcnt);
-                if (renderThread.prcnt==100) {
-                    renderProgress.setValue(100);
-                    renderProgress.setIndeterminate(false);
-                    renderProgress.setString(null);
-                    timer.stop();
-                    return;
-                } else if (renderThread.prcnt == -1){
-                    renderProgress.setIndeterminate(true);
-                    renderProgress.setString("saving");
-                } else{
-                    renderProgress.setValue((int)renderThread.prcnt);
-                }
-            }
-        }
-
 
         @Override
         public void mouseClicked(MouseEvent e) { //finder hvor du trykker og ændre på værdierne REEL og IMAG
@@ -526,18 +467,9 @@ import javax.swing.*;
                 IMAG_MAX = IMAG_MIN + (MouseY * 2) * Dy;
                 IMAG_MIN = IMAG_MIN + (zoomLvl) * Dy;
             }
+            mandelbrot.rerender();
             repaint();
         }
-
-
-        public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable(){
-            @Override
-            public void run(){
-                new render().setVisible(true);
-            }
-        });
-    }
 
     @Override
     public void mousePressed(MouseEvent me) {
@@ -554,6 +486,126 @@ import javax.swing.*;
     @Override
     public void mouseExited(MouseEvent me) {
     }
+
+        public interface ImageConsumer {
+            public void imageLoaded(BufferedImage img);
+        }
+
+        public class GraphicsPanel extends JPanel implements ImageConsumer {
+            private BufferedImage img;
+
+            GraphicsPanel() {
+                new RenderWorker(this).execute();
+            }
+
+            public void imageLoaded(BufferedImage pic) {
+                this.img = pic;
+                repaint();
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (img != null) {
+                    g.drawImage(img, 0, 0, this);
+                    pane.repaint();
+                }
+            }
+
+            protected void rerender() {
+                CurrentProgress pgbar1 = new CurrentProgress();
+                timer2 = new Timer(progressRefreshreteCurrent, pgbar1);
+                timer2.start();
+                new RenderWorker(this).execute();
+            }
+
+            protected class RenderWorker extends SwingWorker<BufferedImage, Integer> {
+                private ImageConsumer consumer;
+
+                public RenderWorker(ImageConsumer consumer) {
+                    this.consumer = consumer;
+                }
+
+                @Override
+                protected BufferedImage doInBackground() throws Exception {
+                    BufferedImage image = new BufferedImage(AREAX, AREAY, BufferedImage.TYPE_INT_RGB);
+                    Graphics g = image.createGraphics();
+                    double dpcnt; //Delta percent
+                    dpcnt = 99.99 / AREAY;
+                    percnt = 0;
+                    Dx = (REEL_MAX - REEL_MIN) / AREAX;                 //Her er byttet om
+                    Dy = (IMAG_MAX - IMAG_MIN) / AREAY;                 //Her er byttet om
+                    currentAreaY = AREAY;
+                    currentAreaX = AREAX;
+                    //Dx = -0.00357142857142857142857142857143;
+                    //Dy = -0.00357142857142857142857142857143;
+                    x = REEL_MIN;
+                    y = IMAG_MIN;
+                    for (int i = 0; i < currentAreaY; i++) {
+                        percnt = percnt + dpcnt;
+                        for (int j = 0; j < currentAreaX; j++) {
+                            count = 0;
+                            p0 = x;
+                            q0 = y;
+                            for (int k = 0; Math.abs(p0) <= LIMIT && Math.abs(q0) <= LIMIT && k < LOOP_LIMIT; k++) {
+                                p1 = p0 * p0 - q0 * q0 + x;
+                                q1 = 2 * p0 * q0 + y;
+                                p0 = p1;
+                                q0 = q1;
+                                count++;
+                            }
+                            if (Math.abs(p0) < LIMIT && Math.abs(q0) < LIMIT) {
+                                g.setColor(Color.black);
+                            } else {
+                                colorPix();
+                                g.setColor(farve);
+                            }
+                            g.drawLine(j, i, j, i);
+                            x = x + Dx;
+                        }
+                        x = REEL_MIN;
+                        y = y + Dy;
+                    }
+                    percnt = 100.0;
+                    return image;
+                }
+
+                protected void done() {
+                    try {
+                        BufferedImage img = get();
+                        consumer.imageLoaded(img);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        public class RenderProgress implements ActionListener {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println(renderThread.prcnt);
+                if (renderThread.prcnt == 100) {
+                    renderProgress.setValue(100);
+                    renderProgress.setIndeterminate(false);
+                    renderProgress.setString(null);
+                    timer.stop();
+                } else if (renderThread.prcnt == -1) {
+                    renderProgress.setIndeterminate(true);
+                    renderProgress.setString("saving");
+                } else {
+                    renderProgress.setValue((int) renderThread.prcnt);
+                }
+            }
+        }
+
+        public class CurrentProgress implements ActionListener {
+            public void actionPerformed(ActionEvent e) {
+                rendered.setValue((int) percnt);
+                if ((int) percnt == 100) {
+                    timer2.stop();
+                }
+            }
+        }
 
 }
 /* TODO:
