@@ -490,7 +490,7 @@ import java.util.ArrayList;
         void sendToPrint(){
             renderThread = new Imagerenderer();
             System.out.println("image away");
-            renderThread.params(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, Coloring.toArray(new String[Coloring.size()]), FileName.getText());
+            renderThread.params(Integer.valueOf(size.getText()), REEL_MAX, REEL_MIN, IMAG_MAX, IMAG_MIN, ColorIndex.toArray(new String[ColorIndex.size()]), FileName.getText());
             renderThread.start();
             render.RenderProgress pgbar = new render.RenderProgress();
             timer = new Timer(progressRefreshrateBackground, pgbar);
