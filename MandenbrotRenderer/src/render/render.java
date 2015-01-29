@@ -185,7 +185,7 @@ import java.util.ArrayList;
                 @Override
                 public void actionPerformed(ActionEvent event) {
                     System.out.println("Ping!");
-                    if (clrnum.getSelectedIndex() >= 0 && clrnum.getSelectedIndex() < Coloring.size()) {
+                    if (clrnum.getSelectedIndex() >= 0 && clrnum.getSelectedIndex() < ColorIndex.size()) {
                         System.out.println(ColorIndex.get(clrnum.getSelectedIndex()));
                         clr.setText(ColorIndex.get(clrnum.getSelectedIndex()));
                     }
@@ -195,17 +195,40 @@ import java.util.ArrayList;
             clr.addCaretListener(new CaretListener() {
                 @Override
                 public void caretUpdate(CaretEvent event) {
-                    if (clr.getText().length() == 9) {
-                        if (ColorIndex.size() <= clrnum.getSelectedIndex()) {
-                            ColorIndex.add(clr.getText());
-                        } else {
-                            ColorIndex.set(clrnum.getSelectedIndex(), clr.getText());
+                    Flasher flasher = new Flasher();
+                    if (IsNumber(clr.getText())) {
+                        if (clr.getText().length() == 9) {
+                            if (Integer.valueOf(clr.getText().substring(0, 3)) <= 255 &&
+                                    (Integer.valueOf(clr.getText().substring(3, 6)) <= 255) &&
+                                    (Integer.valueOf(clr.getText().substring(6, 9)) <= 255) &&
+                                    (Integer.valueOf(clr.getText().substring(0, 3)) >= 0) &&
+                                    (Integer.valueOf(clr.getText().substring(3, 6)) >= 0) &&
+                                    (Integer.valueOf(clr.getText().substring(6, 9)) >= 0)) {
+                                clr.setOpaque(true);
+                                flasher.Fade(Color.black, Color.green, clr, 4, true);
+                                if (ColorIndex.size() <= clrnum.getSelectedIndex()) {
+                                    ColorIndex.add(clr.getText());
+                                } else {
+                                    ColorIndex.set(clrnum.getSelectedIndex(), clr.getText());
+                                }
+                                cNum = ColorIndex.size();
+                                LOOP_LIMIT = 255 * ColorIndex.size();
+                            } else {
+                                flasher.Fade(Color.black, Color.red, clr, 4, false);
+                            }
                         }
-                        cNum = ColorIndex.size();
-                        LOOP_LIMIT = 255 * ColorIndex.size();
-                    }
+                    } else flasher.Flash(Color.red, clr, 5, 100);
                 }
             });
+        }
+
+        boolean IsNumber(String test) {
+            try {
+                Integer.valueOf(test);
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
         }
 
         /*void colorPix() { //giver variablen "farve" en farve, der tildeles til en pixel, dette gøres for hvær pixel
@@ -388,6 +411,9 @@ import java.util.ArrayList;
             int r;
             int g;
             int b;
+            int or; //old red
+            int og;
+            int ob;
             double dr;
             double dg;
             double db;
@@ -398,17 +424,19 @@ import java.util.ArrayList;
             if (ClrVal.size() < ColorIndex.size()) ClrVal.add(count % 255);
 
             if (ClrVal.size() >= 2) {
-                c1 = Integer.valueOf(String.valueOf(ClrVal.get(ClrVal.size() - 2)));
                 fg = String.valueOf(ColorIndex.get(ClrVal.size() - 2));
+                or = Integer.valueOf(fg.substring(0, 3));
+                og = Integer.valueOf(fg.substring(3, 6));
+                ob = Integer.valueOf(fg.substring(6, 9));
                 c2 = Integer.valueOf(String.valueOf(ClrVal.get(ClrVal.size() - 1)));
                 bg = String.valueOf(ColorIndex.get(ClrVal.size() - 1));
 
-                dr = ((Integer.valueOf(bg.substring(0,3)))/256.0);
-                dg = ((Integer.valueOf(bg.substring(3,6)))/256.0);
-                db = ((Integer.valueOf(bg.substring(6,9)))/256.0);
-                r =(int)((c2)* dr);
-                g =(int)((c2)* dg);
-                b =(int)((c2)* db);
+                dr = ((Integer.valueOf(bg.substring(0, 3)) - Integer.valueOf(fg.substring(0, 3))) / 256.0);
+                dg = ((Integer.valueOf(bg.substring(3, 6)) - Integer.valueOf(fg.substring(3, 6))) / 256.0);
+                db = ((Integer.valueOf(bg.substring(6, 9)) - Integer.valueOf(fg.substring(6, 9))) / 256.0);
+                r = (int) ((or) + (c2 * dr));
+                g = (int) ((og) + (c2 * dg));
+                b = (int) ((ob) + (c2 * db));
 
             } else {
                 c1 = Integer.valueOf(String.valueOf(ClrVal.get(ClrVal.size() - 1)));
@@ -421,7 +449,7 @@ import java.util.ArrayList;
                 g =(int)(c1 * dg);
                 b =(int)(c1 * db);
             }
-            if (r > 255 || g > 255 || b>255){
+            if (r > 255 || g > 255 || b > 255 || r < 0 || g < 0 || b < 0) {
                 System.out.println(r + "," + g + "," + b);
                 return Color.black;
             }else {
@@ -654,7 +682,72 @@ import java.util.ArrayList;
             }
         }
 
+        private class Flasher implements ActionListener {
+            double dr;
+            double dg;
+            double db;
+            private Color col1;
+            private Color col2;
+            private String action;
+            private Component cmp;
+            private Timer foo;
+            private int spd;
+            private boolean reset;
+            private boolean resetting;
+            private int i = 0;
+
+            public void Fade(Color start, Color end, Component cmpt, int speed, boolean reset) {
+                action = "fade";
+                col1 = start;
+                col2 = end;
+                dr = (end.getRed() - start.getRed()) / 100.0;
+                dg = (end.getGreen() - start.getGreen()) / 100.0;
+                db = (end.getBlue() - start.getBlue()) / 100.0;
+                cmp = cmpt;
+                spd = speed;
+                this.reset = reset;
+                foo = new Timer(spd, this);
+                foo.start();
+            }
+
+            public void Flash(Color color, Component cmpt, int flashes, int speed) {
+                action = "flash";
+                col1 = color;
+                cmp = cmpt;
+                i = flashes * 2;
+                foo = new Timer(speed, this);
+                foo.start();
+            }
+
+            public void actionPerformed(ActionEvent e) {
+                if (action.equals("fade")) {
+                    if (!resetting) {
+                        i++;
+                        cmp.setForeground(new Color((int) (col1.getRed() + (i * dr)), (int) (col1.getGreen() + (i * dg)), (int) (col1.getBlue() + (i * db))));
+                    }
+                    if (reset && resetting) {
+                        i++;
+                        cmp.setForeground(new Color((int) (col2.getRed() - (i * dr)), (int) (col2.getGreen() - (i * dg)), (int) (col2.getBlue() - (i * db))));
+                    }
+                    if (i >= 100 && reset && !resetting) {
+                        resetting = true;
+                        i = 0;
+                    }
+                    if (i >= 100 && !reset) foo.stop();
+                    if (i >= 100 && reset && resetting) foo.stop();
+                } else if (action.equals("flash")) {
+                    if (i % 2 == 0) {
+                        cmp.setForeground(col1);
+                    } else {
+                        cmp.setForeground(null);
+                    }
+                    i--;
+                    if (i == 0) foo.stop();
+                }
+            }
+        }
 }
+
 /*
 UI:
 Optimise UI<
