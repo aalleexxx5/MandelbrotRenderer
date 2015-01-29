@@ -1,6 +1,8 @@
 package render;
 
 import javax.swing.*;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
         private final int progressRefreshrateBackground = 200;
         private final inout file = new inout();
         private final ArrayList<String> Coloring = new ArrayList<>(); // lagre rekkefølgen af farver
+        private final ArrayList<String> ColorIndex = new ArrayList<>();
         private final ArrayList<Integer> ClrVal = new ArrayList<>(); //indeholder værdien af de enkelte farver
         private int count;
         private int cNum;
@@ -40,7 +43,7 @@ import java.util.ArrayList;
         private JTextField FileName;
         private JTextField size;
         private JComboBox<Integer> clrnum;
-        private JComboBox<String> clr;
+        private JTextField clr;
         private JButton sav;
         private JButton restart;
         private JCheckBox retain;
@@ -104,8 +107,7 @@ import java.util.ArrayList;
             clrnum.addItem(1);
             clrnum.setBounds(210, 50, 100, 20);
 
-            String[] colors = {"Red", "Green", "Blue", "Cyan", "Magenta", "Yellow", "Orange", "Forest", "Turquoise", "Sea", "Violet", "Lavender", "White", "Black"};
-            clr = new JComboBox<>(colors);
+            clr = new JTextField();
             clr.setBounds(330, 50, 100, 20);
 
             sav = new JButton("Img");
@@ -184,27 +186,29 @@ import java.util.ArrayList;
                 public void actionPerformed(ActionEvent event) {
                     System.out.println("Ping!");
                     if (clrnum.getSelectedIndex() >= 0 && clrnum.getSelectedIndex() < Coloring.size()) {
-                        System.out.println(Coloring.get(clrnum.getSelectedIndex()));
-                        clr.setSelectedItem(Coloring.get(clrnum.getSelectedIndex()));
+                        System.out.println(ColorIndex.get(clrnum.getSelectedIndex()));
+                        clr.setText(ColorIndex.get(clrnum.getSelectedIndex()));
                     }
                 }
             });
 
-            clr.addActionListener(new ActionListener() {
+            clr.addCaretListener(new CaretListener() {
                 @Override
-                public void actionPerformed(ActionEvent event) {
-                    cNum = Coloring.size();
-                    LOOP_LIMIT = 255 * cNum;
-                    if (Coloring.size() <= clrnum.getSelectedIndex()) {
-                        Coloring.add(clrnum.getSelectedIndex(), clr.getSelectedItem().toString());
-                    } else {
-                        Coloring.set(clrnum.getSelectedIndex(), clr.getSelectedItem().toString());
+                public void caretUpdate(CaretEvent event) {
+                    if (clr.getText().length() == 9) {
+                        if (ColorIndex.size() <= clrnum.getSelectedIndex()) {
+                            ColorIndex.add(clr.getText());
+                        } else {
+                            ColorIndex.set(clrnum.getSelectedIndex(), clr.getText());
+                        }
+                        cNum = ColorIndex.size();
+                        LOOP_LIMIT = 255 * ColorIndex.size();
                     }
                 }
             });
         }
 
-        void colorPix() { //giver variablen "farve" en farve, der tildeles til en pixel, dette gøres for hvær pixel
+        /*void colorPix() { //giver variablen "farve" en farve, der tildeles til en pixel, dette gøres for hvær pixel
             int c1;
             int c2 = 0;
             int r = 0;
@@ -376,9 +380,58 @@ import java.util.ArrayList;
                 }
             }
             farve = new Color(r, g, b);
+        }*/
+
+        Color AdvColorPix(){
+            int c1;
+            int c2;
+            int r;
+            int g;
+            int b;
+            double dr;
+            double dg;
+            double db;
+            String fg; //foreground colour
+            String bg; //background colour
+            ClrVal.clear();
+            for (int i = 0; i <= (count / 255) - 1; i++) ClrVal.add(255);
+            if (ClrVal.size() < ColorIndex.size()) ClrVal.add(count % 255);
+
+            if (ClrVal.size() >= 2) {
+                c1 = Integer.valueOf(String.valueOf(ClrVal.get(ClrVal.size() - 2)));
+                fg = String.valueOf(ColorIndex.get(ClrVal.size() - 2));
+                c2 = Integer.valueOf(String.valueOf(ClrVal.get(ClrVal.size() - 1)));
+                bg = String.valueOf(ColorIndex.get(ClrVal.size() - 1));
+
+                dr = ((Integer.valueOf(bg.substring(0,3)))/256.0);
+                dg = ((Integer.valueOf(bg.substring(3,6)))/256.0);
+                db = ((Integer.valueOf(bg.substring(6,9)))/256.0);
+                r =(int)((c2)* dr);
+                g =(int)((c2)* dg);
+                b =(int)((c2)* db);
+
+            } else {
+                c1 = Integer.valueOf(String.valueOf(ClrVal.get(ClrVal.size() - 1)));
+                fg = String.valueOf(ColorIndex.get(ClrVal.size() - 1));
+
+                dr = (Integer.valueOf(fg.substring(0,3))/256.0);
+                dg = (Integer.valueOf(fg.substring(3,6))/256.0);
+                db = (Integer.valueOf(fg.substring(6,9))/256.0);
+                r =(int)(c1 * dr);
+                g =(int)(c1 * dg);
+                b =(int)(c1 * db);
+            }
+            if (r > 255 || g > 255 || b>255){
+                System.out.println(r + "," + g + "," + b);
+                return Color.black;
+            }else {
+                return new Color(r, g, b);
+            }
         }
 
         void loadConfig() { //sætter alle variabler udfra config fil, hvis filen ikke er der, lav en
+            ColorIndex.add("180090000");
+            ColorIndex.add("255255000");
             String settings = file.readFile("settings");
             if (settings.equals("false")) SetConfig();
             cNum = Integer.valueOf(settings.substring(settings.indexOf("C?") + 3, settings.indexOf("#", settings.indexOf("C?"))));
@@ -552,8 +605,8 @@ import java.util.ArrayList;
                             if (Math.abs(p0) < LIMIT && Math.abs(q0) < LIMIT) {
                                 g.setColor(Color.black);
                             } else {
-                                colorPix();
-                                g.setColor(farve);
+                                //g.setColor(farve);
+                                g.setColor(AdvColorPix());
                             }
                             g.drawLine(j, i, j, i);
                             x = x + Dx;
@@ -592,7 +645,6 @@ import java.util.ArrayList;
                 }
             }
         }
-
         private class CurrentProgress implements ActionListener {
             public void actionPerformed(ActionEvent e) {
                 rendered.setValue((int) percnt);
