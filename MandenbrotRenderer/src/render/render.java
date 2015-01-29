@@ -297,7 +297,7 @@ import java.util.ArrayList;
 
         void SetConfig() { //kode der (finder ud ad hvornår user interfacet skal loades og) sætter en configfil op med standard-værdier
             String output;
-            output = "C? 2#" + "\n" + "C1 000000255#" + "\n" + "C2 255255000#";
+            output = "C? 2#" + "\n" + "C1 000000180#" + "\n" + "C2 255255050#";
             file.writeFile(output, "settings");
         }
 
@@ -579,6 +579,7 @@ Optimise UI<
 Improve UI load time (multi threading helped a bit)
 saves, loaded from the UI in a combobox, stored in multiple text files. the amount of saves stored in a main file + names
 UI descriptions
+Add a "give me a random colour" button
 
 Metadata for the images?
 watermark? optional?
