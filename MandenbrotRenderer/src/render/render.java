@@ -19,11 +19,8 @@ import java.util.ArrayList;
         private final int progressRefreshrateCurrent = 50;
         private final int progressRefreshrateBackground = 200;
         private final inout file = new inout();
-        private final ArrayList<String> Coloring = new ArrayList<>(); // lagre rekkefølgen af farver
         private final ArrayList<String> ColorIndex = new ArrayList<>();
         private final ArrayList<Integer> ClrVal = new ArrayList<>(); //indeholder værdien af de enkelte farver
-        private int count;
-        private int cNum;
         private int zoomLvl = 400;
         private double REEL_MIN = -2.0; // min reelle værdi
         private double REEL_MAX = 0.5; // max reelle værdi
@@ -36,7 +33,6 @@ import java.util.ArrayList;
         private boolean toggleComp;
         private Timer timer;  // TODO: rename this
         private Timer timer2; // TODO: rename this
-        private Color farve;
         private Imagerenderer renderThread;
         private JTextField MaxColors;
         private JTextField Zoom;
@@ -53,7 +49,7 @@ import java.util.ArrayList;
         private render.GraphicsPanel mandelbrot;
 
         public render() {
-            loadConfig();
+            while (!loadConfig()) ;
             initUI();
         }
 
@@ -123,9 +119,9 @@ import java.util.ArrayList;
             FileName.setBounds(210, 80, 100, 20);
 
             Zoom.setText(String.valueOf(zoomLvl));
-            MaxColors.setText(String.valueOf(Coloring.size()));
+            MaxColors.setText(String.valueOf(ColorIndex.size()));
             clrnum.removeAllItems();
-            for (int i = 0; i < Coloring.size(); i++) {
+            for (int i = 0; i < ColorIndex.size(); i++) {
                 clrnum.addItem(i);
             }
 
@@ -211,7 +207,6 @@ import java.util.ArrayList;
                                 } else {
                                     ColorIndex.set(clrnum.getSelectedIndex(), clr.getText());
                                 }
-                                cNum = ColorIndex.size();
                                 LOOP_LIMIT = 255 * ColorIndex.size();
                             } else {
                                 flasher.Fade(Color.black, Color.red, clr, 4, false);
@@ -231,181 +226,7 @@ import java.util.ArrayList;
             }
         }
 
-        /*void colorPix() { //giver variablen "farve" en farve, der tildeles til en pixel, dette gøres for hvær pixel
-            int c1;
-            int c2 = 0;
-            int r = 0;
-            int g = 0;
-            int b = 0;
-            int mod = count % 255;
-            String fg;
-            String bg = "Yellow";
-            ClrVal.clear();
-            for (int i = 0; i <= (count / 255) - 1; i++) ClrVal.add(255);
-            if (ClrVal.size() < cNum) ClrVal.add(count % 255);
-
-            if (ClrVal.size() >= 2) {
-                c1 = Integer.valueOf(String.valueOf(ClrVal.get(ClrVal.size() - 2)));
-                fg = String.valueOf(Coloring.get(ClrVal.size() - 2));
-                c2 = Integer.valueOf(String.valueOf(ClrVal.get(ClrVal.size() - 1)));
-                bg = String.valueOf(Coloring.get(ClrVal.size() - 1));
-            } else {
-                c1 = Integer.valueOf(String.valueOf(ClrVal.get(ClrVal.size() - 1)));
-                fg = String.valueOf(Coloring.get(ClrVal.size() - 1));
-            }
-            switch (fg) {
-                case "Red":
-                    r = c1;
-                    break;
-                case "Green":
-                    g = c1;
-                    break;
-                case "Blue":
-                    b = c1;
-                    break;
-                case "Cyan":
-                    g = b = c1;
-                    break;
-                case "Magenta":
-                    r = b = c1;
-                    break;
-                case "Yellow":
-                    r = g = c1;
-                    break;
-                case "Orange":
-                    r = c1;
-                    g = c1 / 2;
-                    break;
-                case "Forest":
-                    r = c1 / 2;
-                    g = c1;
-                    break;
-                case "Turquoise":
-                    g = c1;
-                    b = c1 / 2;
-                    break;
-                case "Sea":
-                    g = c1 / 2;
-                    b = c1;
-                    break;
-                case "Violet":
-                    b = c1;
-                    r = c1 / 2;
-                    break;
-                case "Lavender":
-                    b = c1 / 2;
-                    r = c1;
-                    break;
-                case "White":
-                    r = g = b = c1;
-                    break;
-                case "Black":
-                    r = g = b = 255 - c1;
-                    break;
-                default:
-                    b = c1;
-                    break;
-            }
-            if (count > mod) {
-                switch (bg) {
-                    case "Red":
-                        if (r != 255) r = c2;
-                        if (g != 0) g = c1 - c2;
-                        if (b != 0) b = c1 - c2;
-                        break;
-                    case "Green":
-                        if (g != 255) g = c2;
-                        if (r != 0) r = c1 - c2;
-                        if (b != 0) b = c1 - c2;
-                        break;
-                    case "Blue":
-                        if (b != 255) b = c2;
-                        if (r != 0) r = c1 - c2;
-                        if (g != 0) g = c1 - c2;
-                        break;
-                    case "Cyan":
-                        if (g != 255) g = c2;
-                        if (b != 255) b = c2;
-                        if (r != 0) r = c1 - c2;
-                        break;
-                    case "Magenta":
-                        if (r != 255) r = c2;
-                        if (b != 255) b = c2;
-                        if (g != 0) g = c1 - c2;
-                        break;
-                    case "Yellow":
-                        if (r != 255) r = c2;
-                        if (g != 255) g = c2;
-                        if (b != 0) b = c1 - c2;
-                        break;
-                    case "Orange":
-                        if (r != 255) r = c2;
-                        if (g != 127) {
-                            if (g < 255) g = c2 / 2;
-                            if (g > 128) g = c1 - c2 / 2;
-                        }
-                        if (b != 0) b = c1 - c2;
-                        break;
-                    case "Sea":
-                        if (r != 0) r = c1 - c2;
-                        if (g != 127) {
-                            if (g < 255) g = c2 / 2;
-                            if (g > 128) g = c1 - c2 / 2;
-                        }
-                        if (b != 255) b = c2;
-                        break;
-                    case "Violet":
-                        if (r != 127) {
-                            if (r < 255) r = c2 / 2;
-                            if (r > 128) r = c1 - c2 / 2;
-                        }
-                        if (g != 0) g = c1 - c2;
-                        if (b != 255) b = c2;
-                        break;
-                    case "Lavender":
-                        if (r != 255) r = c2;
-                        if (g != 0) g = c1 - c2;
-                        if (b != 127) {
-                            if (b < 255) b = c2 / 2;
-                            if (b > 128) b = c1 - c2 / 2;
-                        }
-                        break;
-                    case "Forest":
-                        if (r != 127) {
-                            if (r < 255) r = c2 / 2;
-                            if (r > 128) r = c1 - c2 / 2;
-                        }
-                        if (g != 255) g = c2;
-                        if (b != 0) b = c1 - c2;
-                        break;
-                    case "Turquoise":
-                        if (r != 0) r = c1 - c2;
-                        if (g != 255) g = c2;
-                        if (b != 127) {
-                            if (b < 255) b = c2 / 2;
-                            if (b > 128) b = c1 / 2;
-                        }
-                        break;
-                    case "White":
-                        if (r != 255) r = c2;
-                        if (g != 255) g = c2;
-                        if (b != 255) b = c2;
-                        break;
-                    case "Black":
-                        if (r != 0) r = c1 - c2;
-                        if (g != 0) g = c1 - c2;
-                        if (b != 0) b = c1 - c2;
-                        break;
-                    default:
-                        r = g = c2;
-                        b = c1 - c2;
-                        break;
-                }
-            }
-            farve = new Color(r, g, b);
-        }*/
-
-        Color AdvColorPix(){
+        Color AdvColorPix(int count) {
             int c1;
             int c2;
             int r;
@@ -457,22 +278,26 @@ import java.util.ArrayList;
             }
         }
 
-        void loadConfig() { //sætter alle variabler udfra config fil, hvis filen ikke er der, lav en
-            ColorIndex.add("180090000");
-            ColorIndex.add("255255000");
+        boolean loadConfig() { //sætter alle variabler udfra config fil, hvis filen ikke er der, lav en
+            //ColorIndex.add("180090000");
+            //ColorIndex.add("255255000");
             String settings = file.readFile("settings");
-            if (settings.equals("false")) SetConfig();
-            cNum = Integer.valueOf(settings.substring(settings.indexOf("C?") + 3, settings.indexOf("#", settings.indexOf("C?"))));
-            LOOP_LIMIT = 255 * cNum;
-            Coloring.clear();
-            for (int i = 0; i <= cNum - 1; i++) {
-                Coloring.add(settings.substring(settings.indexOf("C" + String.valueOf(i + 1)) + 2 + String.valueOf(i).length(), settings.indexOf("#", settings.indexOf("C" + String.valueOf(i + 1)))));
+            if (settings.equals("false")) {
+                SetConfig();
+                return false;
             }
+            int cNum = Integer.valueOf(settings.substring(settings.indexOf("C?") + 3, settings.indexOf("#", settings.indexOf("C?"))));
+            LOOP_LIMIT = 255 * cNum;
+            ColorIndex.clear();
+            for (int i = 0; i <= cNum - 1; i++) {
+                ColorIndex.add(settings.substring(settings.indexOf("C" + String.valueOf(i + 1)) + 2 + String.valueOf(i).length(), settings.indexOf("#", settings.indexOf("C" + String.valueOf(i + 1)))));
+            }
+            return true;
         }
 
         void SetConfig() { //kode der (finder ud ad hvornår user interfacet skal loades og) sætter en configfil op med standard-værdier
             String output;
-            output = "C? 2#" + "\n" + "C1 Blue#" + "\n" + "C2 Yellow#";
+            output = "C? 2#" + "\n" + "C1 000000255#" + "\n" + "C2 255255000#";
             file.writeFile(output, "settings");
         }
 
@@ -619,7 +444,7 @@ import java.util.ArrayList;
                     for (int i = 0; i < AREAY; i++) {
                         percnt = percnt + dpcnt;
                         for (int j = 0; j < AREAX; j++) {
-                            count = 0;
+                            int count = 0;
                             double p0 = x;
                             double q0 = y;
                             double LIMIT = 20.0;
@@ -634,7 +459,7 @@ import java.util.ArrayList;
                                 g.setColor(Color.black);
                             } else {
                                 //g.setColor(farve);
-                                g.setColor(AdvColorPix());
+                                g.setColor(AdvColorPix(count));
                             }
                             g.drawLine(j, i, j, i);
                             x = x + Dx;

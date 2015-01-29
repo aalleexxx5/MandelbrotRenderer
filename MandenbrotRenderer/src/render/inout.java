@@ -35,7 +35,8 @@ public class inout {
         line = ind.readLine();
         }
     } catch (FileNotFoundException ex) {
-        s="false";
+            s = "false";
+            return s;
     }
         catch (IOException ex) {
             Logger.getLogger(inout.class.getName()).log(Level.SEVERE, null, ex);
