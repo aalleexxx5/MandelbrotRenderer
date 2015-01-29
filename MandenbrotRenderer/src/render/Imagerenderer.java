@@ -9,14 +9,14 @@ import java.util.ArrayList;
 
 // Created on 25-01-2015.
 public class Imagerenderer implements Runnable {
-    int size;
-    double reel_max;
-    double reel_min;
-    double imag_max;
-    double imag_min;
-    String[] coloring;
-    String filename;
     double prcnt = 0;
+    private int size;
+    private double reel_max;
+    private double reel_min;
+    private double imag_max;
+    private double imag_min;
+    private String[] coloring;
+    private String filename;
     private Thread t;
 
     public void params(int Size, double Reel_max, double Reel_min, double Imag_max, double Imag_min, String[] Coloring, String Filename) {
@@ -157,7 +157,3 @@ public class Imagerenderer implements Runnable {
         }
     }
 }
-/*
-TODO:
-RenderProgress bar!
- */

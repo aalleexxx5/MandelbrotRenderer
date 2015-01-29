@@ -585,14 +585,15 @@ Metadata for the images?
 watermark? optional?
 make tray  flash when rendering is complete, include a sound notification
 add orange turquoise violet
-revise colour engine delta in individual colours, this makes for custom colours
 optimise (there is always optimisation)
 multiple ways to optimise (rendering time vs. memory vs. space used.. etc)
 remove/translate old comments
+render queue
 
 COMPLETED:
 Creating a huge image from a zoomed in part, --specify the dimension in the UI >filename in UI
 Animations? like a spinner thing while UI is loading COMPLETED: progress bar
 add a setting to a save/reset from the UI< COMPLETED: put op two buttons for saving an image and resetting
 remove colors from the UI COMPLETED: reset added
+revise colour engine delta in individual colours, this makes for custom colours COMPLETED!
 */
