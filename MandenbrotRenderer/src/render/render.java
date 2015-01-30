@@ -662,6 +662,11 @@ optimise (there is always optimisation)
 multiple ways to optimise (rendering time vs. memory vs. space used.. etc)
 remove/translate old comments
 render queue
+Guided tour of UI and Mandelbrot (use double buffering and a lot of randomness){
+render mandelbrot, Choice: render or change colour layout
+render: find a place in the image where there is a high colourvalue
+Colour layout: cycle thrugh the colours and assign a random colours
+}
 
 COMPLETED:
 add orange turquoise violet
