@@ -151,10 +151,20 @@ import java.util.ArrayList;
             });
 //TODO: Clean up mess from here on down! make comments to get an overview
 
-            Zoom.addActionListener(new ActionListener() {
+            Zoom.addCaretListener(new CaretListener() {
                 @Override
-                public void actionPerformed(ActionEvent event) {
-                    zoomLvl = Integer.valueOf(Zoom.getText());
+                public void caretUpdate(CaretEvent event) {
+                    Flasher flasher = new Flasher();
+                    if (IsNumber(Zoom.getText())){
+                        if (Integer.valueOf(Zoom.getText()) != zoomLvl){
+                            zoomLvl = Integer.valueOf(Zoom.getText());
+                            //Zoom.setBackground(Color.green);
+                            //flasher.FadeBackground(Color.green, Color.white, Zoom, 5,false);
+                            flasher.FlashBackground(Color.green,Zoom,1,100);
+                        }
+                    } else if (!Zoom.getText().equals("")){
+                        flasher.FadeBackground(Color.white,Color.red,Zoom,4,false);
+                    }
                 }
             });
 
