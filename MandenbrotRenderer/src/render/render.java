@@ -105,6 +105,7 @@ import java.util.ArrayList;
 
             clr = new JTextField();
             clr.setBounds(330, 50, 100, 20);
+            clr.setOpaque(true);
 
             sav = new JButton("Img");
             sav.setBounds(110, 50, 60, 20);
@@ -201,7 +202,7 @@ import java.util.ArrayList;
                                     (Integer.valueOf(clr.getText().substring(3, 6)) >= 0) &&
                                     (Integer.valueOf(clr.getText().substring(6, 9)) >= 0)) {
                                 clr.setOpaque(true);
-                                flasher.Fade(Color.black, Color.green, clr, 4, true);
+                                flasher.FadeBackground(Color.white, Color.green, clr, 4, true);
                                 if (ColorIndex.size() <= clrnum.getSelectedIndex()) {
                                     ColorIndex.add(clr.getText());
                                 } else {
@@ -209,10 +210,12 @@ import java.util.ArrayList;
                                 }
                                 LOOP_LIMIT = 255 * ColorIndex.size();
                             } else {
-                                flasher.Fade(Color.black, Color.red, clr, 4, false);
+                                flasher.FadeBackground(Color.white, Color.red, clr, 4, true);
                             }
                         }
-                    } else flasher.Flash(Color.red, clr, 5, 100);
+                    } else if (clr.getText().length() > 0){
+                        flasher.FlashBackground(Color.red, clr, 5, 100);
+                    }
                 }
             });
         }
@@ -535,8 +538,31 @@ import java.util.ArrayList;
                 foo.start();
             }
 
+            public void FadeBackground(Color start, Color end, Component cmpt, int speed, boolean reset) {
+                action = "fadeBackground";
+                col1 = start;
+                col2 = end;
+                dr = (end.getRed() - start.getRed()) / 100.0;
+                dg = (end.getGreen() - start.getGreen()) / 100.0;
+                db = (end.getBlue() - start.getBlue()) / 100.0;
+                cmp = cmpt;
+                spd = speed;
+                this.reset = reset;
+                foo = new Timer(spd, this);
+                foo.start();
+            }
+
             public void Flash(Color color, Component cmpt, int flashes, int speed) {
                 action = "flash";
+                col1 = color;
+                cmp = cmpt;
+                i = flashes * 2;
+                foo = new Timer(speed, this);
+                foo.start();
+            }
+
+            public void FlashBackground(Color color, Component cmpt, int flashes, int speed) {
+                action = "flashBackground";
                 col1 = color;
                 cmp = cmpt;
                 i = flashes * 2;
@@ -560,11 +586,37 @@ import java.util.ArrayList;
                     }
                     if (i >= 100 && !reset) foo.stop();
                     if (i >= 100 && reset && resetting) foo.stop();
+
+                } else if (action.equals("fadeBackground")) {
+                    if (!resetting) {
+                        i++;
+                        cmp.setBackground(new Color((int) (col1.getRed() + (i * dr)), (int) (col1.getGreen() + (i * dg)), (int) (col1.getBlue() + (i * db))));
+                    }
+                    if (reset && resetting) {
+                        i++;
+                        cmp.setBackground(new Color((int) (col2.getRed() - (i * dr)), (int) (col2.getGreen() - (i * dg)), (int) (col2.getBlue() - (i * db))));
+                    }
+                    if (i >= 100 && reset && !resetting) {
+                        resetting = true;
+                        i = 0;
+                    }
+                    if (i >= 100 && !reset) foo.stop();
+                    if (i >= 100 && reset && resetting) foo.stop();
+
                 } else if (action.equals("flash")) {
                     if (i % 2 == 0) {
                         cmp.setForeground(col1);
                     } else {
                         cmp.setForeground(null);
+                    }
+                    i--;
+                    if (i == 0) foo.stop();
+
+                } else if (action.equals("flashBackground")) {
+                    if (i % 2 == 0) {
+                        cmp.setBackground(col1);
+                    } else {
+                        cmp.setBackground(null);
                     }
                     i--;
                     if (i == 0) foo.stop();
