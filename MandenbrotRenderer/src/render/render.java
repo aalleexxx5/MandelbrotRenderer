@@ -42,6 +42,7 @@ import java.util.ArrayList;
         private JTextField clr;
         private JButton sav;
         private JButton restart;
+        private JButton random;
         private JCheckBox retain;
         private JProgressBar renderProgress;
         private JProgressBar rendered;
@@ -116,6 +117,9 @@ import java.util.ArrayList;
             restart = new JButton("←");
             restart.setBounds(110, 80, 60, 20);
 
+            random = new JButton("RND");
+            random.setBounds(435, 50, 60, 20);
+
             FileName = new JTextField("Filename");
             FileName.setBounds(210, 80, 100, 20);
 
@@ -144,6 +148,7 @@ import java.util.ArrayList;
                     pane.remove(retain);
                     pane.remove(FileName);
                     pane.remove(size);
+                    pane.remove(random);
                     System.out.println("Closing Ui");
                     mandelbrot.rerender();
                     repaint();
@@ -175,6 +180,11 @@ import java.util.ArrayList;
                 }
             });
 
+            random.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                }
+            });
 
             MaxColors.addActionListener(new ActionListener() {
                 @Override
@@ -356,6 +366,7 @@ import java.util.ArrayList;
                     pane.add(retain, 0);
                     pane.add(FileName,0);
                     pane.add(size,0);
+                    pane.add(random,0);
                     System.out.println("Opening Ui...");
                 } else {
                     pane.remove(MaxColors);
@@ -367,6 +378,7 @@ import java.util.ArrayList;
                     pane.remove(retain);
                     pane.remove(FileName);
                     pane.remove(size);
+                    pane.remove(random);
                     System.out.println("Closing Ui");
                 }
             } else if (!toggleComp && zoomLvl > 0) {
@@ -646,13 +658,13 @@ Add a "give me a random colour" button
 Metadata for the images?
 watermark? optional?
 make tray  flash when rendering is complete, include a sound notification
-add orange turquoise violet
 optimise (there is always optimisation)
 multiple ways to optimise (rendering time vs. memory vs. space used.. etc)
 remove/translate old comments
 render queue
 
 COMPLETED:
+add orange turquoise violet
 Creating a huge image from a zoomed in part, --specify the dimension in the UI >filename in UI
 Animations? like a spinner thing while UI is loading COMPLETED: progress bar
 add a setting to a save/reset from the UI< COMPLETED: put op two buttons for saving an image and resetting
