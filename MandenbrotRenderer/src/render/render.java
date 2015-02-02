@@ -3,12 +3,15 @@ package render;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 //@author alex
@@ -31,10 +34,11 @@ import java.util.ArrayList;
         private double Dy = (IMAG_MAX - IMAG_MIN) / AREAY;//delta-x og delta-y          //Her er byttet om
         private double percnt;
         private boolean toggleComp;
+        private boolean isHelp;
         private Timer timer;  // TODO: rename this
         private Timer timer2; // TODO: rename this
         private Imagerenderer renderThread;
-        private JTextField MaxColors;
+        private JSpinner MaxColors;
         private JTextField Zoom;
         private JTextField FileName;
         private JTextField size;
@@ -43,10 +47,12 @@ import java.util.ArrayList;
         private JButton sav;
         private JButton restart;
         private JButton random;
+        private JToggleButton help;
         private JCheckBox retain;
         private JProgressBar renderProgress;
         private JProgressBar rendered;
         private JLayeredPane pane = new JLayeredPane();
+        private JTextArea desc;
         private render.GraphicsPanel mandelbrot;
 
         public render() {
@@ -91,40 +97,49 @@ import java.util.ArrayList;
             mandelbrot.setBounds(0, 0, AREAX, AREAY);
             pane.add(mandelbrot, 2);
 
-            retain = new JCheckBox();
-            retain.setBounds(180, 80, 20, 20);
-
-            MaxColors = new JTextField();
-            MaxColors.setBounds(50, 50, 50, 20);
-
             Zoom = new JTextField();
-            Zoom.setBounds(50, 80, 50, 20);
+            Zoom.setBounds(20, 50, 35, 20);
+
+            MaxColors = new JSpinner(new SpinnerNumberModel(2, null, null, 1));
+            MaxColors.setBounds(20, 20, 40, 20);
 
             clrnum = new JComboBox<>();
             clrnum.addItem(1);
-            clrnum.setBounds(210, 50, 100, 20);
+            clrnum.setBounds(62, 20, 60, 20);
 
             clr = new JTextField();
-            clr.setBounds(330, 50, 100, 20);
+            clr.setBounds(127, 20, 100, 20);
             clr.setOpaque(true);
 
+            random = new JButton("RND");
+            random.setBounds(230, 20, 60, 20);
+
             sav = new JButton("Img");
-            sav.setBounds(110, 50, 60, 20);
+            sav.setBounds(57, 80, 60, 20);
 
             size = new JTextField("4");
-            size.setBounds(180, 50, 20, 20);
-
-            restart = new JButton("←");
-            restart.setBounds(110, 80, 60, 20);
-
-            random = new JButton("RND");
-            random.setBounds(435, 50, 60, 20);
+            size.setBounds(20, 80, 35, 20);
 
             FileName = new JTextField("Filename");
-            FileName.setBounds(210, 80, 100, 20);
+            FileName.setBounds(20, 102, 100, 20);
+
+            restart = new JButton("←");
+            restart.setBounds(62, 50, 60, 20);
+
+            retain = new JCheckBox();
+            retain.setBounds(124, 50, 20, 20);
+
+            help = new JToggleButton("?");
+            help.setMargin(new Insets(0, 0, 0, 0));
+            help.setBounds(124, 80, 20, 20);
+
+            desc = new JTextArea();
+            desc.setBounds(149, 50, 227, 72);
+            desc.setLineWrap(true);
+            desc.setWrapStyleWord(true);
 
             Zoom.setText(String.valueOf(zoomLvl));
-            MaxColors.setText(String.valueOf(ColorIndex.size()));
+            MaxColors.setValue(ColorIndex.size());
             clrnum.removeAllItems();
             for (int i = 0; i < ColorIndex.size(); i++) {
                 clrnum.addItem(i);
@@ -149,6 +164,8 @@ import java.util.ArrayList;
                     pane.remove(FileName);
                     pane.remove(size);
                     pane.remove(random);
+                    pane.remove(help);
+                    pane.remove(desc);
                     System.out.println("Closing Ui");
                     mandelbrot.rerender();
                     repaint();
@@ -156,19 +173,36 @@ import java.util.ArrayList;
             });
 //TODO: Clean up mess from here on down! make comments to get an overview
 
+            help.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    if (help.isSelected()) {
+                        pane.add(desc, 0);
+                        if (!isHelp) {
+                            isHelp = true;
+                            helpDisplay display = new helpDisplay();
+                            display.startDisplaying();
+                        }
+                    } else {
+                        pane.remove(desc);
+                        isHelp = false;
+                    }
+                }
+            });
+
             Zoom.addCaretListener(new CaretListener() {
                 @Override
                 public void caretUpdate(CaretEvent event) {
                     Flasher flasher = new Flasher();
-                    if (IsNumber(Zoom.getText())){
-                        if (Integer.valueOf(Zoom.getText()) != zoomLvl){
+                    if (IsNumber(Zoom.getText())) {
+                        if (Integer.valueOf(Zoom.getText()) != zoomLvl) {
                             zoomLvl = Integer.valueOf(Zoom.getText());
                             //Zoom.setBackground(Color.green);
                             //flasher.FadeBackground(Color.green, Color.white, Zoom, 5,false);
-                            flasher.FlashBackground(Color.green,Zoom,1,100);
+                            flasher.FlashBackground(Color.green, Zoom, 1, 100);
                         }
-                    } else if (!Zoom.getText().equals("")){
-                        flasher.FadeBackground(Color.white,Color.red,Zoom,4,false);
+                    } else if (!Zoom.getText().equals("")) {
+                        flasher.FadeBackground(Color.white, Color.red, Zoom, 4, false);
                     }
                 }
             });
@@ -183,15 +217,17 @@ import java.util.ArrayList;
             random.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
+                    DecimalFormat format = new DecimalFormat("000");
+                    clr.setText(format.format(Math.random() * 255) + format.format(Math.random() * 255) + format.format(Math.random() * 255));
                 }
             });
 
-            MaxColors.addActionListener(new ActionListener() {
+            MaxColors.addChangeListener(new ChangeListener() {
                 @Override
-                public void actionPerformed(ActionEvent event) {
-                    if (Integer.valueOf(MaxColors.getText()) > 0) {
+                public void stateChanged(ChangeEvent e) {
+                    if (Integer.valueOf(MaxColors.getValue().toString()) > 0) {
                         clrnum.removeAllItems();
-                        for (int i = 0; i < Integer.valueOf(MaxColors.getText()); i++) {
+                        for (int i = 0; i < Integer.valueOf(MaxColors.getValue().toString()); i++) {
                             clrnum.addItem(i);
                         }
                     }
@@ -367,6 +403,8 @@ import java.util.ArrayList;
                     pane.add(FileName,0);
                     pane.add(size,0);
                     pane.add(random,0);
+                    pane.add(help, 0);
+                    if (help.isSelected()) pane.add(desc, 0);
                     System.out.println("Opening Ui...");
                 } else {
                     pane.remove(MaxColors);
@@ -379,23 +417,26 @@ import java.util.ArrayList;
                     pane.remove(FileName);
                     pane.remove(size);
                     pane.remove(random);
+                    pane.remove(help);
+                    pane.remove(desc);
                     System.out.println("Closing Ui");
                 }
+                repaint();
             } else if (!toggleComp && zoomLvl > 0) {
                 REEL_MIN = REEL_MIN + MouseX * Dx;
                 REEL_MAX = REEL_MIN + zoomLvl * Dx;
 
                 IMAG_MIN = IMAG_MIN + MouseY * Dy;
                 IMAG_MAX = IMAG_MIN + zoomLvl * Dy;
+                mandelbrot.rerender();
             } else if (!toggleComp && zoomLvl < 0) {
                 REEL_MAX = REEL_MIN + (MouseX * 2) * Dx;
                 REEL_MIN = REEL_MIN + (zoomLvl) * Dx;
 
                 IMAG_MAX = IMAG_MIN + (MouseY * 2) * Dy;
                 IMAG_MIN = IMAG_MIN + (zoomLvl) * Dy;
-            }
-            mandelbrot.rerender();
-            repaint();
+                mandelbrot.rerender();
+            } else mandelbrot.rerender();
         }
 
     @Override
@@ -532,6 +573,44 @@ import java.util.ArrayList;
             }
         }
 
+        class helpDisplay implements ActionListener {
+            Timer ding;
+            String foo = "The corner of the screen toggles this UI in a 20x20 area (as large as the '?' button)";
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (MaxColors.getMousePosition() != null)
+                    foo = "Amount of colours to be rendered, more colours takes longer and if you add too many, it looks confusing. \n -I didn't set a limit though";
+                else if (clrnum.getMousePosition() != null)
+                    foo = "In this box you select which colour to give which value";
+                else if (clr.getMousePosition() != null)
+                    foo = "This is where you specify the colour value to be rendered. In decimal, not hex, that means '000000000' is black and 255255255 is white. The box flashes green when the value is set";
+                else if (sav.getMousePosition() != null)
+                    foo = "Press to save what you see as an image (no, the buttons are not seen in the image silly)";
+                else if (Zoom.getMousePosition() != null)
+                    foo = "Here goes the amount of pixels you want to zoom in on, If the value is low you zoom a lot, if the value exceeds the size of the area: " + AREAY + "x" + AREAY + " you zoom out";
+                else if (restart.getMousePosition() != null)
+                    foo = "Pressing this will reset the application, unless the checkbox is marked everything returns to how it was when you started the application";
+                else if (retain.getMousePosition() != null)
+                    foo = "If this is checked, the colours will be retained when resetting the application (the button with the arrow))";
+                else if (FileName.getMousePosition() != null)
+                    foo = "Here is where the filename goes, If the name is in use, the file gets overwritten without any prompting";
+                else if (size.getMousePosition() != null)
+                    foo = "Size of the image you want to render in thousands of pixels, setting this to '1' gives an image of 1024x1024";
+                else if (random.getMousePosition() != null)
+                    foo = "Press this to add a random colour value, y'know because randomness is awesome!";
+                else if (help.getMousePosition() != null) foo = "this is the button you press to hide this help box.";
+                desc.setText(foo);
+                if (!isHelp) ding.stop();
+            }
+
+            void startDisplaying() {
+                ding = new Timer(200, this);
+                ding.start();
+            }
+        }
+
+
         private class Flasher implements ActionListener {
             double dr;
             double dg;
@@ -664,8 +743,8 @@ remove/translate old comments
 render queue
 Guided tour of UI and Mandelbrot (use double buffering and a lot of randomness){
 render mandelbrot, Choice: render or change colour layout
-render: find a place in the image where there is a high colourvalue
-Colour layout: cycle thrugh the colours and assign a random colours
+render: find a place in the image where there is a high colour value
+Colour layout: cycle through the colours and assign a random colours
 }
 
 COMPLETED:
