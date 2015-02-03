@@ -83,7 +83,7 @@ import java.util.ArrayList;
 
             rendered = new JProgressBar(0,100);
             rendered.setBounds(2, AREAY-20, 100, 20);
-            rendered.setValue(0);
+            rendered.setValue(100);
             rendered.setStringPainted(true);
             pane.add(rendered,1);
 
@@ -390,53 +390,53 @@ import java.util.ArrayList;
                 MouseX = e.getX() - (zoomLvl / 2);
                 MouseY = e.getY() - (zoomLvl / 2);
             }
-            if (e.getX() > AREAX - 20 && e.getY() > AREAY - 20) {
-                toggleComp = (!toggleComp);
-                if (toggleComp) {
-                    pane.add(MaxColors,0);
-                    pane.add(clrnum,0);
-                    pane.add(clr,0);
-                    pane.add(sav,0);
-                    pane.add(Zoom, 0);
-                    pane.add(restart,0);
-                    pane.add(retain, 0);
-                    pane.add(FileName,0);
-                    pane.add(size,0);
-                    pane.add(random,0);
-                    pane.add(help, 0);
-                    if (help.isSelected()) pane.add(desc, 0);
-                    System.out.println("Opening Ui...");
-                } else {
-                    pane.remove(MaxColors);
-                    pane.remove(clrnum);
-                    pane.remove(clr);
-                    pane.remove(sav);
-                    pane.remove(Zoom);
-                    pane.remove(restart);
-                    pane.remove(retain);
-                    pane.remove(FileName);
-                    pane.remove(size);
-                    pane.remove(random);
-                    pane.remove(help);
-                    pane.remove(desc);
-                    System.out.println("Closing Ui");
-                }
-                repaint();
-            } else if (!toggleComp && zoomLvl > 0) {
-                REEL_MIN = REEL_MIN + MouseX * Dx;
-                REEL_MAX = REEL_MIN + zoomLvl * Dx;
+            if (rendered.getValue()>99) {
+                if (e.getX() > AREAX - 20 && e.getY() > AREAY - 20) {
+                    toggleComp = (!toggleComp);
+                    if (toggleComp) {
+                        pane.add(MaxColors, 0);
+                        pane.add(clrnum, 0);
+                        pane.add(clr, 0);
+                        pane.add(sav, 0);
+                        pane.add(Zoom, 0);
+                        pane.add(restart, 0);
+                        pane.add(retain, 0);
+                        pane.add(FileName, 0);
+                        pane.add(size, 0);
+                        pane.add(random, 0);
+                        pane.add(help, 0);
+                        if (help.isSelected()) pane.add(desc, 0);
+                    } else {
+                        pane.remove(MaxColors);
+                        pane.remove(clrnum);
+                        pane.remove(clr);
+                        pane.remove(sav);
+                        pane.remove(Zoom);
+                        pane.remove(restart);
+                        pane.remove(retain);
+                        pane.remove(FileName);
+                        pane.remove(size);
+                        pane.remove(random);
+                        pane.remove(help);
+                        pane.remove(desc);
+                    }
+                    repaint();
+                } else if (!toggleComp && zoomLvl > 0) {
+                    REEL_MIN = REEL_MIN + MouseX * Dx;
+                    REEL_MAX = REEL_MIN + zoomLvl * Dx;
 
-                IMAG_MIN = IMAG_MIN + MouseY * Dy;
-                IMAG_MAX = IMAG_MIN + zoomLvl * Dy;
-                mandelbrot.rerender();
-            } else if (!toggleComp && zoomLvl < 0) {
-                REEL_MAX = REEL_MIN + (MouseX * 2) * Dx;
-                REEL_MIN = REEL_MIN + (zoomLvl) * Dx;
+                    IMAG_MIN = IMAG_MIN + MouseY * Dy;
+                    IMAG_MAX = IMAG_MIN + zoomLvl * Dy;
+                    mandelbrot.rerender();
+                } else if (!toggleComp && zoomLvl < 0) {
+                    REEL_MAX = REEL_MIN + (MouseX * 2) * Dx;
+                    REEL_MIN = REEL_MIN + (zoomLvl) * Dx;
 
-                IMAG_MAX = IMAG_MIN + (MouseY * 2) * Dy;
-                IMAG_MIN = IMAG_MIN + (zoomLvl) * Dy;
-                mandelbrot.rerender();
-            } else mandelbrot.rerender();
+                    IMAG_MAX = IMAG_MIN + (MouseY * 2) * Dy;
+                    IMAG_MIN = IMAG_MIN + (zoomLvl) * Dy;
+                    mandelbrot.rerender();
+                } else mandelbrot.rerender();
+            }
         }
 
     @Override
@@ -584,7 +584,7 @@ import java.util.ArrayList;
                 else if (clrnum.getMousePosition() != null)
                     foo = "In this box you select which colour to give which value";
                 else if (clr.getMousePosition() != null)
-                    foo = "This is where you specify the colour value to be rendered. In decimal, not hex, that means '000000000' is black and 255255255 is white. The box flashes green when the value is set";
+                    foo = "This is where you specify the colour value to be rendered. In decimal, eg. '000000000' is black and 255255255 is white. The box flashes green when the value is set";
                 else if (sav.getMousePosition() != null)
                     foo = "Press to save what you see as an image (no, the buttons are not seen in the image silly)";
                 else if (Zoom.getMousePosition() != null)
@@ -732,7 +732,6 @@ Optimise UI<
 Improve UI load time (multi threading helped a bit)
 saves, loaded from the UI in a combobox, stored in multiple text files. the amount of saves stored in a main file + names
 UI descriptions
-Add a "give me a random colour" button
 
 Metadata for the images?
 watermark? optional?
@@ -748,6 +747,7 @@ Colour layout: cycle through the colours and assign a random colours
 }
 
 COMPLETED:
+Add a "give me a random colour" button
 add orange turquoise violet
 Creating a huge image from a zoomed in part, --specify the dimension in the UI >filename in UI
 Animations? like a spinner thing while UI is loading COMPLETED: progress bar
