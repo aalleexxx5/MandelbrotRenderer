@@ -166,7 +166,6 @@ import java.util.ArrayList;
                     pane.remove(random);
                     pane.remove(help);
                     pane.remove(desc);
-                    System.out.println("Closing Ui");
                     mandelbrot.rerender();
                     repaint();
                 }
@@ -496,6 +495,7 @@ import java.util.ArrayList;
 
                 @Override
                 protected BufferedImage doInBackground() throws Exception {
+                    long starttime = System.nanoTime();
                     BufferedImage image = new BufferedImage(AREAX, AREAY, BufferedImage.TYPE_INT_RGB);
                     Graphics g = image.createGraphics();
                     double dpcnt; //Delta percent
@@ -533,6 +533,7 @@ import java.util.ArrayList;
                         x = REEL_MIN;
                         y = y + Dy;
                     }
+                    System.out.println("Time to render: " + ((System.nanoTime() - starttime) / 1000) + " μs");
                     percnt = 100.0;
                     return image;
                 }
@@ -584,7 +585,7 @@ import java.util.ArrayList;
                 else if (clrnum.getMousePosition() != null)
                     foo = "In this box you select which colour to give which value";
                 else if (clr.getMousePosition() != null)
-                    foo = "This is where you specify the colour value to be rendered. In decimal, eg. '000000000' is black and 255255255 is white. The box flashes green when the value is set";
+                    foo = "This is where you specify the colour value to be rendered. In dec, eg. '000000000' is black and 255255255 is white. The box flashes green when the value is set";
                 else if (sav.getMousePosition() != null)
                     foo = "Press to save what you see as an image (no, the buttons are not seen in the image silly)";
                 else if (Zoom.getMousePosition() != null)
