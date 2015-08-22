@@ -54,6 +54,7 @@ import java.util.ArrayList;
         private JLayeredPane pane = new JLayeredPane();
         private JTextArea desc;
         private render.GraphicsPanel mandelbrot;
+        private JLabel pageTurnContainer;
 
         public render() {
             while (!loadConfig()) ;
@@ -71,7 +72,7 @@ import java.util.ArrayList;
 
         void initUI() {
             setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            setSize(AREAX+8, AREAY+38);
+            setSize(AREAX + 8, AREAY + 38);
             setTitle("Fractals!!");
             setLocationRelativeTo(null);
             setLayout(null);
@@ -82,16 +83,16 @@ import java.util.ArrayList;
             add(pane);
 
             rendered = new JProgressBar(0,100);
-            rendered.setBounds(2, AREAY-20, 100, 20);
+            rendered.setBounds(2, AREAY - 20, 100, 20);
             rendered.setValue(100);
             rendered.setStringPainted(true);
-            pane.add(rendered,1);
+            pane.add(rendered, 1);
 
             renderProgress = new JProgressBar(0,100);
-            renderProgress.setBounds(104, AREAY-20, 100, 20);
+            renderProgress.setBounds(104, AREAY - 20, 100, 20);
             renderProgress.setValue(0);
             renderProgress.setStringPainted(true);
-            pane.add(renderProgress,0);
+            pane.add(renderProgress, 0);
 
             mandelbrot = new render.GraphicsPanel();
             mandelbrot.setBounds(0, 0, AREAX, AREAY);
@@ -137,6 +138,12 @@ import java.util.ArrayList;
             desc.setBounds(149, 50, 227, 72);
             desc.setLineWrap(true);
             desc.setWrapStyleWord(true);
+
+            java.net.URL imgURL = getClass().getResource("blue-corner-symbol-small.png");
+            ImageIcon turnIcon = new ImageIcon(imgURL);
+            pageTurnContainer = new JLabel(turnIcon);
+            pageTurnContainer.setBounds(AREAX - 40, AREAY - 32, 32, 32);
+            pane.add(pageTurnContainer, 0);
 
             Zoom.setText(String.valueOf(zoomLvl));
             MaxColors.setValue(ColorIndex.size());
@@ -455,7 +462,7 @@ import java.util.ArrayList;
     }
 
         public interface ImageConsumer {
-            public void imageLoaded(BufferedImage img);
+            void imageLoaded(BufferedImage img);
         }
 
         public class GraphicsPanel extends JPanel implements ImageConsumer {
