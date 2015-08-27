@@ -22,16 +22,16 @@ import java.util.ArrayList;
         private final int progressRefreshrateCurrent = 50;
         private final int progressRefreshrateBackground = 200;
         private final inout file = new inout();
-        private final ArrayList<String> ColorIndex = new ArrayList<>();
-        private final ArrayList<Integer> ClrVal = new ArrayList<>(); //indeholder værdien af de enkelte farver
+        private final ArrayList<String> ColorIndex = new ArrayList<>();//index for collour values
+        private final ArrayList<Integer> ClrVal = new ArrayList<>(); //used to store a numbers to create colours (if in doubt alt + f7)
         private int zoomLvl = 400;
-        private double REEL_MIN = -2.0; // min reelle værdi
-        private double REEL_MAX = 0.5; // max reelle værdi
-        private double IMAG_MIN = -1.25; // min imaginære værdi
-        private double IMAG_MAX = 1.25; // max imaginære værdi
-        private double LOOP_LIMIT = 509;//grænseværdien for while loop iterationer
-        private double Dx = (REEL_MAX - REEL_MIN) / AREAX;                              //Her er byttet om
-        private double Dy = (IMAG_MAX - IMAG_MIN) / AREAY;//delta-x og delta-y          //Her er byttet om
+        private double REEL_MIN = -2.0; // min real value
+        private double REEL_MAX = 0.5; // max real value
+        private double IMAG_MIN = -1.25; // min imaginarry value
+        private double IMAG_MAX = 1.25; // max imaginarry value
+        private double LOOP_LIMIT = 509;//limit for loop iterations
+        private double Dx = (REEL_MAX - REEL_MIN) / AREAX;
+        private double Dy = (IMAG_MAX - IMAG_MIN) / AREAY;//delta-x and delta-y
         private double percnt;
         private boolean toggleComp;
         private boolean isHelp;
@@ -155,10 +155,10 @@ import java.util.ArrayList;
             restart.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
-                    REEL_MIN = -2.0; // min reelle værdi
-                    REEL_MAX = 0.5; // max reelle værdi
-                    IMAG_MIN = -1.25; // min imaginære værdi
-                    IMAG_MAX = 1.25; // max imaginære værdi
+                    REEL_MIN = -2.0; // min real value
+                    REEL_MAX = 0.5; // max real value
+                    IMAG_MIN = -1.25; // min imaginarry value
+                    IMAG_MAX = 1.25; // max imaginarry value
                     if (!retain.isSelected()) loadConfig();
                     toggleComp = false;
                     pane.remove(MaxColors);
@@ -233,8 +233,12 @@ import java.util.ArrayList;
                 public void stateChanged(ChangeEvent e) {
                     if (Integer.valueOf(MaxColors.getValue().toString()) > 0) {
                         clrnum.removeAllItems();
+                        System.out.println("removed all items");
                         for (int i = 0; i < Integer.valueOf(MaxColors.getValue().toString()); i++) {
-                            clrnum.addItem(i);
+                            clrnum.addItem(i+1);
+                        }
+                        if (ColorIndex.size()>Integer.valueOf(MaxColors.getValue().toString())){
+                            ColorIndex.remove(ColorIndex.size()-1);
                         }
                     }
                 }
@@ -282,7 +286,7 @@ import java.util.ArrayList;
             });
         }
 
-        boolean IsNumber(String test) {
+        boolean IsNumber(String test) { //utility to check for number
             try {
                 Integer.valueOf(test);
                 return true;
@@ -291,7 +295,7 @@ import java.util.ArrayList;
             }
         }
 
-        Color AdvColorPix(int count) {
+        Color AdvColorPix(int count) { // all new and improved colour engine
             int c1;
             int c2;
             int r;
@@ -343,9 +347,7 @@ import java.util.ArrayList;
             }
         }
 
-        boolean loadConfig() { //sætter alle variabler udfra config fil, hvis filen ikke er der, lav en
-            //ColorIndex.add("180090000");
-            //ColorIndex.add("255255000");
+        boolean loadConfig() { //load variables from a configfile, a config is not presant, create one and return false
             String settings = file.readFile("settings");
             if (settings.equals("false")) {
                 SetConfig();
@@ -360,7 +362,7 @@ import java.util.ArrayList;
             return true;
         }
 
-        void SetConfig() { //kode der (finder ud ad hvornår user interfacet skal loades og) sætter en configfil op med standard-værdier
+        void SetConfig() { //create a stndard config-file
             String output;
             output = "C? 2#" + "\n" + "C1 000000180#" + "\n" + "C2 255255050#";
             file.writeFile(output, "settings");
@@ -389,7 +391,7 @@ import java.util.ArrayList;
         }
 
         @Override
-        public void mouseClicked(MouseEvent e) { //finder hvor du trykker og ændre på værdierne REEL og IMAG
+        public void mouseClicked(MouseEvent e) { //locates where a mouse click happened and sets values accordingly
             int MouseX = e.getX() - (zoomLvl / 2);
             int MouseY = e.getY() - (zoomLvl / 2);
             if (zoomLvl < 0) {
@@ -508,8 +510,8 @@ import java.util.ArrayList;
                     double dpcnt; //Delta percent
                     dpcnt = 99.99 / AREAY;
                     percnt = 0;
-                    Dx = (REEL_MAX - REEL_MIN) / AREAX;                 //Her er byttet om
-                    Dy = (IMAG_MAX - IMAG_MIN) / AREAY;                 //Her er byttet om
+                    Dx = (REEL_MAX - REEL_MIN) / AREAX;
+                    Dy = (IMAG_MAX - IMAG_MIN) / AREAY;
                     //Dx = -0.00357142857142857142857142857143;
                     //Dy = -0.00357142857142857142857142857143;
                     double x = REEL_MIN;
@@ -560,10 +562,10 @@ import java.util.ArrayList;
             public void actionPerformed(ActionEvent e) {
                 System.out.println(renderThread.prcnt);
                 if (renderThread.prcnt == 100) {
+                    timer.stop();
                     renderProgress.setValue(100);
                     renderProgress.setIndeterminate(false);
                     renderProgress.setString(null);
-                    timer.stop();
                 } else if (renderThread.prcnt == -1) {
                     renderProgress.setIndeterminate(true);
                     renderProgress.setString("saving");
@@ -617,136 +619,18 @@ import java.util.ArrayList;
                 ding.start();
             }
         }
-
-
-        private class Flasher implements ActionListener {
-            double dr;
-            double dg;
-            double db;
-            private Color col1;
-            private Color col2;
-            private String action;
-            private Component cmp;
-            private Timer foo;
-            private int spd;
-            private boolean reset;
-            private boolean resetting;
-            private int i = 0;
-
-            public void Fade(Color start, Color end, Component cmpt, int speed, boolean reset) {
-                action = "fade";
-                col1 = start;
-                col2 = end;
-                dr = (end.getRed() - start.getRed()) / 100.0;
-                dg = (end.getGreen() - start.getGreen()) / 100.0;
-                db = (end.getBlue() - start.getBlue()) / 100.0;
-                cmp = cmpt;
-                spd = speed;
-                this.reset = reset;
-                foo = new Timer(spd, this);
-                foo.start();
-            }
-
-            public void FadeBackground(Color start, Color end, Component cmpt, int speed, boolean reset) {
-                action = "fadeBackground";
-                col1 = start;
-                col2 = end;
-                dr = (end.getRed() - start.getRed()) / 100.0;
-                dg = (end.getGreen() - start.getGreen()) / 100.0;
-                db = (end.getBlue() - start.getBlue()) / 100.0;
-                cmp = cmpt;
-                spd = speed;
-                this.reset = reset;
-                foo = new Timer(spd, this);
-                foo.start();
-            }
-
-            public void Flash(Color color, Component cmpt, int flashes, int speed) {
-                action = "flash";
-                col1 = color;
-                cmp = cmpt;
-                i = flashes * 2;
-                foo = new Timer(speed, this);
-                foo.start();
-            }
-
-            public void FlashBackground(Color color, Component cmpt, int flashes, int speed) {
-                action = "flashBackground";
-                col1 = color;
-                cmp = cmpt;
-                i = flashes * 2;
-                foo = new Timer(speed, this);
-                foo.start();
-            }
-
-            public void actionPerformed(ActionEvent e) {
-                if (action.equals("fade")) {
-                    if (!resetting) {
-                        i++;
-                        cmp.setForeground(new Color((int) (col1.getRed() + (i * dr)), (int) (col1.getGreen() + (i * dg)), (int) (col1.getBlue() + (i * db))));
-                    }
-                    if (reset && resetting) {
-                        i++;
-                        cmp.setForeground(new Color((int) (col2.getRed() - (i * dr)), (int) (col2.getGreen() - (i * dg)), (int) (col2.getBlue() - (i * db))));
-                    }
-                    if (i >= 100 && reset && !resetting) {
-                        resetting = true;
-                        i = 0;
-                    }
-                    if (i >= 100 && !reset) foo.stop();
-                    if (i >= 100 && reset && resetting) foo.stop();
-
-                } else if (action.equals("fadeBackground")) {
-                    if (!resetting) {
-                        i++;
-                        cmp.setBackground(new Color((int) (col1.getRed() + (i * dr)), (int) (col1.getGreen() + (i * dg)), (int) (col1.getBlue() + (i * db))));
-                    }
-                    if (reset && resetting) {
-                        i++;
-                        cmp.setBackground(new Color((int) (col2.getRed() - (i * dr)), (int) (col2.getGreen() - (i * dg)), (int) (col2.getBlue() - (i * db))));
-                    }
-                    if (i >= 100 && reset && !resetting) {
-                        resetting = true;
-                        i = 0;
-                    }
-                    if (i >= 100 && !reset) foo.stop();
-                    if (i >= 100 && reset && resetting) foo.stop();
-
-                } else if (action.equals("flash")) {
-                    if (i % 2 == 0) {
-                        cmp.setForeground(col1);
-                    } else {
-                        cmp.setForeground(null);
-                    }
-                    i--;
-                    if (i == 0) foo.stop();
-
-                } else if (action.equals("flashBackground")) {
-                    if (i % 2 == 0) {
-                        cmp.setBackground(col1);
-                    } else {
-                        cmp.setBackground(null);
-                    }
-                    i--;
-                    if (i == 0) foo.stop();
-                }
-            }
-        }
 }
 
 /*
 UI:
-Optimise UI<
-Improve UI load time (multi threading helped a bit)
 saves, loaded from the UI in a combobox, stored in multiple text files. the amount of saves stored in a main file + names
-UI descriptions
 
+When render thread is completed, cancel percent calculation
 Metadata for the images?
 watermark? optional?
 make tray  flash when rendering is complete, include a sound notification
 optimise (there is always optimisation)
 multiple ways to optimise (rendering time vs. memory vs. space used.. etc)
-remove/translate old comments
 render queue
 Guided tour of UI and Mandelbrot (use double buffering and a lot of randomness){
 render mandelbrot, Choice: render or change colour layout
@@ -755,6 +639,10 @@ Colour layout: cycle through the colours and assign a random colours
 }
 
 COMPLETED:
+remove/translate old comments
+Optimise UI<
+Improve UI load time (multi threading helped a bit)
+UI descriptions
 Add a "give me a random colour" button
 add orange turquoise violet
 Creating a huge image from a zoomed in part, --specify the dimension in the UI >filename in UI
